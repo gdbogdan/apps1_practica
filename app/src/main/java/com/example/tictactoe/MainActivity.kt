@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tictactoe.screens.Inicio
 import com.example.tictactoe.screens.Instrucciones
+import com.example.tictactoe.screens.Jugar
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +23,9 @@ class MainActivity : ComponentActivity() {
                 }
                 composable ("Instrucciones") {
                     Instrucciones(navController)
+                }
+                composable ("Jugar") {
+                    Jugar(navController)
                 }
             })
         }
