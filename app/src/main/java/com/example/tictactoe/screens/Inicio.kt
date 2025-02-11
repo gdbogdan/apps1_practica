@@ -1,5 +1,7 @@
 package com.example.tictactoe.screens
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,11 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun Inicio(navController: NavController){
     Column(
@@ -38,7 +42,8 @@ fun Inicio(navController: NavController){
             Text(text = "INSTRUCCIONES")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { /*TODO*/ }) {
+        val activity = (LocalContext.current as? Activity)
+        Button(onClick = { activity?.finish() }) {
             Text(text = "SALIR")
         }
     }
