@@ -30,7 +30,7 @@ fun Inicio(navController: NavController){
             contentDescription = "Letrero Tic Tac Toe"
         )
         Spacer(modifier = Modifier.height(16.dp)) // Espaciado opcional
-        Button(onClick = {/*TODO*/}) {
+        Button(onClick = {navController.navigate("Jugar") }) {
             Text(text = "JUGAR")
         }
         Spacer(modifier = Modifier.height(8.dp))
