@@ -30,7 +30,7 @@ fun Inicio(navController: NavController){
     ) {
         Image(
             modifier = Modifier.fillMaxWidth(),
-            painter = painterResource(id = R.drawable.letrero_tic_tac_toe),
+            painter = painterResource(id = R.drawable.tic_tac_toe),
             contentDescription = "Letrero Tic Tac Toe"
         )
         Spacer(modifier = Modifier.height(16.dp)) // Espaciado opcional
