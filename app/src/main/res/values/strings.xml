@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TicTacToe</string>
+    <string name="instrucciones">En el juego del Tic Tac Toe o Tres en Raya, el objetivo principal es conseguir tres símbolos en línea horizontal, vertical o diagonal. Por norma general, en esta versión empezarán las "X".</string>
+    <string name="instrucciones_dificultad">Existen 2 dificultades en el juego, en la dificultad "Fácil" el juego ocupará la primera celda disponible. En cambio, en la dificultad "Difícil" aquí será un valor aleatorio, pudiendo ser que te dificulte la jugabilidad y el ganar la partida.</string>
 </resources>
