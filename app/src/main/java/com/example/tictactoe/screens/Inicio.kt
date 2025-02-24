@@ -33,7 +33,7 @@ fun Inicio(navController: NavController){
             painter = painterResource(id = R.drawable.tic_tac_toe),
             contentDescription = "Letrero Tic Tac Toe"
         )
-        Spacer(modifier = Modifier.height(16.dp)) // Espaciado opcional
+        Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {navController.navigate("Jugar") }) {
             Text(text = "JUGAR")
         }
