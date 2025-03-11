@@ -5,9 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
@@ -20,6 +20,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,11 +40,12 @@ class MainActivity : ComponentActivity() {
             Scaffold(
                 topBar = {TopBar(navController)},
                 bottomBar = {BottomBar(navController)}
-            ) {
-                NavHost(
-                    navController = navController,
-                    startDestination = "Inicio",
-                    builder = {
+            ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "Inicio",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
                         composable ("Inicio") {
                             Inicio(navController)
                         }
@@ -53,7 +56,6 @@ class MainActivity : ComponentActivity() {
                             Jugar(navController)
                         }
                     }
-                )
             }
         }
     }
