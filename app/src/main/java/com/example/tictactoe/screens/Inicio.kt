@@ -38,10 +38,6 @@ fun Inicio(navController: NavController){
             Text(text = "JUGAR")
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { navController.navigate("Instrucciones") }) {
-            Text(text = "INSTRUCCIONES")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
         val activity = (LocalContext.current as? Activity)
         Button(onClick = { activity?.finish() }) {
             Text(text = "SALIR")
