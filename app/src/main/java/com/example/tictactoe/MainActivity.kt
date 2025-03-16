@@ -44,6 +44,8 @@ class MainActivity : ComponentActivity() {
             var alias = rememberSaveable { mutableStateOf ("") }
             var dificultad = rememberSaveable { mutableStateOf(false) } //false = Nivel fácil y true = Nivel difícil
             var temporizador = rememberSaveable { mutableStateOf(false) } //false = Sin temporizador y true = Con temporizador
+            var primerJuego = rememberSaveable { mutableStateOf(true) } //Para saber si es la primera vez que se juega
+
             Scaffold(
                 topBar = {TopBar(navController)},
                 bottomBar = {BottomBar(navController)}
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable ("Inicio") {
-                            Inicio(navController)
+                            Inicio(navController, primerJuego)
                         }
                         composable ("Instrucciones") {
                             Instrucciones(navController)
