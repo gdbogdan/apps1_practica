@@ -46,6 +46,10 @@ class MainActivity : ComponentActivity() {
             var temporizador = rememberSaveable { mutableStateOf(false) } //false = Sin temporizador y true = Con temporizador
             var primerJuego = rememberSaveable { mutableStateOf(true) } //Para saber si es la primera vez que se juega
 
+            val primerJuegoEditado:() -> Unit = {
+                primerJuego.value = false
+            }
+
             Scaffold(
                 topBar = {TopBar(navController)},
                 bottomBar = {BottomBar(navController)}
@@ -65,7 +69,7 @@ class MainActivity : ComponentActivity() {
                             Jugar(navController)
                         }
                         composable ( "Configuracion"){
-                            Configuracion(navController, alias,dificultad,temporizador)
+                            Configuracion(navController, alias,dificultad,temporizador, primerJuegoEditado)
                         }
                     }
             }

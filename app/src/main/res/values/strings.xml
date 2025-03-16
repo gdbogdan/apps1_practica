@@ -9,7 +9,7 @@
     <string name="placeholder">Ejemplo: John Wick</string>
     <string name="dificultad">Dificultad de juego</string>
     <string name="temporizador">Temporizador</string>
-    <string name="primerJuego">Primera vez que juegas, tienes que modificar tu perfil</string>
+    <string name="primerJuego">Primera vez que juegas, tienes que editar por primera vez tu perfil</string>
 
     <string name="facil">Fácil</string>
     <string name="dificil">Difícil</string>

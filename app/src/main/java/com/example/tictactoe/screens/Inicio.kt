@@ -46,7 +46,6 @@ fun Inicio(navController: NavController, primerJuego: MutableState<Boolean>){
 
         Button(onClick = {
             if(primerJuego.value){
-                primerJuego.value = false
                 Toast.makeText(context, msgPrimerJuego, Toast.LENGTH_LONG).show()
                 navController.navigate("Configuracion")
             }else{

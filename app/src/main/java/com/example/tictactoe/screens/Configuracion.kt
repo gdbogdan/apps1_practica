@@ -27,11 +27,17 @@ import androidx.navigation.NavController
 import com.example.tictactoe.R
 
 @Composable
-fun Configuracion (navController: NavController, alias:MutableState<String>, dificultad:MutableState<Boolean>, temporizador: MutableState<Boolean>){
+fun Configuracion (navController: NavController, alias:MutableState<String>, dificultad:MutableState<Boolean>, temporizador: MutableState<Boolean>, primerJuegoEditado: () -> Unit){
     val context = LocalContext.current
     val isEditing = rememberSaveable { mutableStateOf(false) }
     val toastMsg = stringResource(R.string.toast_config)
     val scrollState = rememberScrollState()
+
+    //Valores originales
+    val originalAlias = rememberSaveable { mutableStateOf(alias.value) }
+    val originalDificultad = rememberSaveable { mutableStateOf(dificultad.value) }
+    val originalTemporizador = rememberSaveable { mutableStateOf(temporizador.value) }
+
     Column(modifier = Modifier.padding(16.dp).verticalScroll(scrollState)){
         // Alias
         Text(text = stringResource(R.string.alias), modifier = Modifier.padding(bottom = 8.dp))
@@ -89,23 +95,50 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = {
-                    if(isEditing.value){
-                        Toast.makeText(context, toastMsg,Toast.LENGTH_SHORT).show()
+            if (isEditing.value) {
+                // Modo Edición
+                Button(
+                    onClick = {
+                        // Guardar los cambios
+                        Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
+                        primerJuegoEditado()
+                        originalAlias.value = alias.value
+                        originalDificultad.value = dificultad.value
+                        originalTemporizador.value = temporizador.value
+                        isEditing.value = false
                     }
-                    isEditing.value = !isEditing.value
+                ) {
+                    Text("Guardar")
                 }
-            ) {
-                Text(if (isEditing.value) "Guardar" else "Editar")
-            }
 
-            Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
-            Button(
-                onClick = { navController.navigate("Inicio") }
-            ) {
-                Text("Inicio")
+                Button(
+                    onClick = {
+                        // Cancelar los cambios
+                        alias.value = originalAlias.value
+                        dificultad.value = originalDificultad.value
+                        temporizador.value = originalTemporizador.value
+                        isEditing.value = false
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        isEditing.value = true
+                    }
+                ) {
+                    Text("Editar")
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    onClick = { navController.navigate("Inicio") }
+                ) {
+                    Text("Inicio")
+                }
+
             }
         }
     }
