@@ -2,6 +2,7 @@ package com.example.tictactoe.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,18 +15,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 
 @SuppressLint("ContextCastToActivity")
 @Composable
-fun Inicio(navController: NavController){
+fun Inicio(navController: NavController, primerJuego: MutableState<Boolean>){
     val scrollstate = rememberScrollState()
+    val context = LocalContext.current
+    val msgPrimerJuego = stringResource(R.string.primerJuego)
+
     Column(
         Modifier.fillMaxSize().verticalScroll(scrollstate),
         verticalArrangement = Arrangement.Center,
@@ -37,7 +43,16 @@ fun Inicio(navController: NavController){
             contentDescription = "Letrero Tic Tac Toe"
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {navController.navigate("Jugar") }) {
+
+        Button(onClick = {
+            if(primerJuego.value){
+                primerJuego.value = false
+                Toast.makeText(context, msgPrimerJuego, Toast.LENGTH_LONG).show()
+                navController.navigate("Configuracion")
+            }else{
+                navController.navigate("Jugar")
+            }
+        }) {
             Text(text = "JUGAR")
         }
         Spacer(modifier = Modifier.height(8.dp))
