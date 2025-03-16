@@ -108,7 +108,7 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
                         isEditing.value = false
                     }
                 ) {
-                    Text("Guardar")
+                    Text(stringResource(R.string.guardar))
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
@@ -122,7 +122,7 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
                         isEditing.value = false
                     }
                 ) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancelar))
                 }
             } else {
                 Button(
@@ -130,13 +130,13 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
                         isEditing.value = true
                     }
                 ) {
-                    Text("Editar")
+                    Text(stringResource(R.string.editar))
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     onClick = { navController.navigate("Inicio") }
                 ) {
-                    Text("Inicio")
+                    Text(stringResource(R.string.inicio))
                 }
 
             }

@@ -16,6 +16,10 @@
     <string name="si">Sí</string>
     <string name="no">No</string>
     <string name="toast_config">Configuracion guardada correctamente</string>
+    <string name="editar">EDITAR</string>
+    <string name="guardar">GUARDAR</string>
+    <string name="cancelar">CANCELAR</string>
+    <string name="inicio">INICIO</string>
 
 
 

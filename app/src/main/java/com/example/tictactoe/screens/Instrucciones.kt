@@ -49,7 +49,7 @@ fun Instrucciones(navController: NavController){
         ){
             Button(onClick = {navController.navigate("Inicio")}) {
                 Text(
-                    text = "VOLVER AL INICIO"
+                    text = stringResource(R.string.inicio)
                 )
             }
         }
