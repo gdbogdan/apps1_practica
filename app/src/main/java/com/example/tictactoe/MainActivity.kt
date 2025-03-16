@@ -20,12 +20,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.tictactoe.screens.Configuracion
 import com.example.tictactoe.screens.Inicio
 import com.example.tictactoe.screens.Instrucciones
 import com.example.tictactoe.screens.Jugar
@@ -37,6 +41,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            var alias = rememberSaveable { mutableStateOf ("") }
+            var dificultad = rememberSaveable { mutableStateOf(false) } //false = Nivel fácil y true = Nivel difícil
+            var temporizador = rememberSaveable { mutableStateOf(false) } //false = Sin temporizador y true = Con temporizador
             Scaffold(
                 topBar = {TopBar(navController)},
                 bottomBar = {BottomBar(navController)}
@@ -55,6 +62,9 @@ class MainActivity : ComponentActivity() {
                         composable ("Jugar") {
                             Jugar(navController)
                         }
+                        composable ( "Configuracion"){
+                            Configuracion(navController, alias,dificultad,temporizador)
+                        }
                     }
             }
         }
@@ -66,7 +76,7 @@ class MainActivity : ComponentActivity() {
         TopAppBar(
             title = { Text("Tic Tac Toe")},
             actions = {
-                IconButton(onClick = {navController.navigate("Inicio")}) {
+                IconButton(onClick = {navController.navigate("Configuracion")}) {
                     Icon(Icons.Filled.Settings, contentDescription = "Configuracion")
                 }
             }

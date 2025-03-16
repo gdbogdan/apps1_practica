@@ -4,4 +4,18 @@
     <string name="instrucciones">En el juego del Tic Tac Toe o Tres en Raya, el objetivo principal es conseguir tres símbolos iguales en línea (pudiendo ser horizontal, vertical o diagonal). Por norma general, en esta versión empezarán las "X".</string>
     <string name="instrucciones_dificultad">Existen 2 dificultades en el juego, en la dificultad "Fácil" el juego ocupará la primera celda disponible. En cambio, en la dificultad "Difícil" aquí será un valor aleatorio, pudiendo ser que te dificulte la jugabilidad y el ganar la partida.</string>
     <string name="instrucciones_perfil">El icono del engranaje que aparece arriba a la derecha, es el botón de tu perfil, pudiendo modificar desde allí, tu nombre, dificultad y temporizador.</string>
+
+    <string name="alias">Alias del Jugador</string>
+    <string name="placeholder">Ejemplo: John Wick</string>
+    <string name="dificultad">Dificultad de juego</string>
+    <string name="temporizador">Temporizador</string>
+
+    <string name="facil">Fácil</string>
+    <string name="dificil">Difícil</string>
+    <string name="si">Sí</string>
+    <string name="no">No</string>
+    <string name="toast_config">Configuracion guardada correctamente</string>
+
+
+
 </resources>
