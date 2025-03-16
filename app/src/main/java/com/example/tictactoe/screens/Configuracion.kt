@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -29,8 +31,8 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
     val context = LocalContext.current
     val isEditing = rememberSaveable { mutableStateOf(false) }
     val toastMsg = stringResource(R.string.toast_config)
-
-    Column(modifier = Modifier.padding(16.dp)){
+    val scrollState = rememberScrollState()
+    Column(modifier = Modifier.padding(16.dp).verticalScroll(scrollState)){
         // Alias
         Text(text = stringResource(R.string.alias), modifier = Modifier.padding(bottom = 8.dp))
         TextField(
