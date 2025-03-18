@@ -33,6 +33,7 @@ import com.example.tictactoe.screens.Configuracion
 import com.example.tictactoe.screens.Inicio
 import com.example.tictactoe.screens.Instrucciones
 import com.example.tictactoe.screens.Jugar
+import com.example.tictactoe.screens.Partidas
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -71,6 +72,10 @@ class MainActivity : ComponentActivity() {
                         composable ( "Configuracion"){
                             Configuracion(navController, alias,dificultad,temporizador, primerJuegoEditado)
                         }
+
+                        composable ( "Partidas"){
+                            Partidas(navController)
+                        }
                     }
             }
         }
@@ -108,7 +113,7 @@ class MainActivity : ComponentActivity() {
                 icon = { Icon(Icons.Filled.Menu, contentDescription = "Partidas") },
                 label = { Text("Partidas") },
                 selected = false, // Necesitarás lógica para esto
-                onClick = { /* Navegar a partidas */ }
+                onClick = { navController.navigate("Partidas") }
             )
         }
     }
