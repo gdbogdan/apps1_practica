@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
                             Instrucciones(navController)
                         }
                         composable ("Jugar") {
-                            Jugar(navController)
+                            Jugar(navController,dificultad, temporizador)
                         }
                         composable ( "Configuracion"){
                             Configuracion(navController, alias,dificultad,temporizador, primerJuegoEditado)
