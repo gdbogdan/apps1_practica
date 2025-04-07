@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
@@ -104,10 +105,10 @@ class MainActivity : ComponentActivity() {
                 onClick = { navController.navigate("Instrucciones") }
             )
             NavigationBarItem(
-                icon = { Icon(Icons.Filled.PlayArrow, contentDescription = "Jugar") },
-                label = { Text("Jugar") },
+                icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
+                label = { Text("Inicio") },
                 selected = false, // Necesitarás lógica para esto
-                onClick = { navController.navigate("Jugar") }
+                onClick = { navController.navigate("Inicio") }
             )
             NavigationBarItem(
                 icon = { Icon(Icons.Filled.Menu, contentDescription = "Partidas") },

@@ -28,12 +28,5 @@ fun Partidas(navController: NavController){
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Estás en la pantalla de Partidas Guardadas")
-        Button(
-            onClick = {
-                navController.navigate("Inicio")
-            }
-        ) {
-            Text(stringResource(R.string.inicio))
-        }
     }
 }
