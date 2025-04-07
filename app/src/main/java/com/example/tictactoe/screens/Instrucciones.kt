@@ -44,15 +44,6 @@ fun Instrucciones(navController: NavController){
                 style = TextStyle(textAlign = TextAlign.Justify)
             )
         }
-        Row (modifier = Modifier.padding(16.dp)
-            .align(Alignment.CenterHorizontally)
-        ){
-            Button(onClick = {navController.navigate("Inicio")}) {
-                Text(
-                    text = stringResource(R.string.inicio)
-                )
-            }
-        }
     }
 }
 
