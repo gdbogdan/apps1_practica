@@ -20,7 +20,10 @@
     <string name="guardar">GUARDAR</string>
     <string name="cancelar">CANCELAR</string>
     <string name="inicio">INICIO</string>
-
+    <string name="continuar">Continuar</string>
+    <string name="fin_del_juego">Fin de la partida</string>
+    <string name="has_ganado">¡Has ganado!</string>
+    <string name="has_perdido">¡Has perdido!</string>
 
 
 </resources>
