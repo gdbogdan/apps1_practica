@@ -33,7 +33,7 @@ import com.example.tictactoe.screens.Inicio
 import com.example.tictactoe.screens.Instrucciones
 import com.example.tictactoe.screens.Jugar
 import com.example.tictactoe.screens.Partidas
-import com.example.tictactoe.viewmodel.PerfilViewModel
+import com.example.tictactoe.view_models.PerfilViewModel
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -55,8 +55,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable ("Inicio") {
                             Inicio(
-                                navController,
-                                perfilViewModel.primerJuego.value
+                                navController = navController,
+                                perfilViewModel = perfilViewModel
                             )
                         }
                         composable ("Instrucciones") {
@@ -64,21 +64,14 @@ class MainActivity : ComponentActivity() {
                         }
                         composable ("Jugar") {
                             Jugar(
-                                navController,
-                                perfilViewModel.dificultad.value,
-                                perfilViewModel.temporizador.value
+                                navController = navController,
+                                perfilViewModel = perfilViewModel
                             )
                         }
                         composable ("Configuracion"){
                             Configuracion(
                                 navController = navController,
-                                alias = perfilViewModel.alias.value,
-                                dificultad = perfilViewModel.dificultad.value,
-                                temporizador = perfilViewModel.temporizador.value,
-                                primerJuegoEditado = perfilViewModel::marcarPrimerJuegoComoJugado,
-                                onAliasChange = perfilViewModel::actualizarAlias,
-                                onDificultadChange = perfilViewModel::actualizarDificultad,
-                                onTemporizadorChange = perfilViewModel::actualizarTemporizador
+                                perfilViewModel = perfilViewModel
                             )
                         }
 

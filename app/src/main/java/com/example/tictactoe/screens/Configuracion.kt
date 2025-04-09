@@ -15,8 +15,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,35 +23,29 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.tictactoe.R
+import com.example.tictactoe.view_models.PerfilViewModel
 
 @Composable
 fun Configuracion (
     navController: NavController,
-    alias: String,
-    dificultad: Boolean,
-    temporizador: Boolean,
-    primerJuegoEditado: () -> Unit,
-    onAliasChange: (String) -> Unit,
-    onDificultadChange: (Boolean) -> Unit,
-    onTemporizadorChange: (Boolean) -> Unit
+    perfilViewModel: PerfilViewModel
 ){
     val context = LocalContext.current
-    val isEditing = rememberSaveable { mutableStateOf(false) }
     val toastMsg = stringResource(R.string.toast_config)
     val scrollState = rememberScrollState()
 
-    //Valores originales
-    val originalAlias = rememberSaveable { mutableStateOf(alias) }
-    val originalDificultad = rememberSaveable { mutableStateOf(dificultad) }
-    val originalTemporizador = rememberSaveable { mutableStateOf(temporizador) }
+    val isEditing by perfilViewModel.isEditing
+    val alias by perfilViewModel.alias
+    val dificultad by perfilViewModel.dificultad
+    val temporizador by perfilViewModel.temporizador
 
     Column(modifier = Modifier.padding(16.dp).verticalScroll(scrollState)){
         // Alias
         Text(text = stringResource(R.string.alias), modifier = Modifier.padding(bottom = 8.dp))
         TextField(
             value = alias,
-            onValueChange = { if (isEditing.value) onAliasChange(it) },
-            enabled = isEditing.value,
+            onValueChange = { if (isEditing) perfilViewModel.actualizarAlias(it) },
+            enabled = isEditing,
             placeholder = { Text(stringResource(R.string.placeholder)) }
         )
 
@@ -63,15 +56,15 @@ fun Configuracion (
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             RadioButton(
                 selected = !dificultad,
-                onClick = { if (isEditing.value) onDificultadChange(false) },
-                enabled = isEditing.value
+                onClick = { if (isEditing) perfilViewModel.actualizarDificultad(false) },
+                enabled = isEditing
             )
             Text(text = stringResource(R.string.facil))
             Spacer(modifier = Modifier.width(16.dp))
             RadioButton(
                 selected = dificultad,
-                onClick = { if (isEditing.value) onDificultadChange(true) },
-                enabled = isEditing.value
+                onClick = { if (isEditing) perfilViewModel.actualizarDificultad(true) },
+                enabled = isEditing
             )
             Text(text = stringResource(R.string.dificil))
         }
@@ -83,15 +76,15 @@ fun Configuracion (
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             RadioButton(
                 selected = !temporizador,
-                onClick = { if (isEditing.value) onTemporizadorChange(false) },
-                enabled = isEditing.value
+                onClick = { if (isEditing) perfilViewModel.actualizarTemporizador(false) },
+                enabled = isEditing
             )
             Text(text = stringResource(R.string.no))
             Spacer(modifier = Modifier.width(16.dp))
             RadioButton(
                 selected = temporizador,
-                onClick = { if (isEditing.value) onTemporizadorChange(true) },
-                enabled = isEditing.value
+                onClick = { if (isEditing) perfilViewModel.actualizarTemporizador(true) },
+                enabled = isEditing
             )
             Text(text = stringResource(R.string.si))
         }
@@ -103,17 +96,14 @@ fun Configuracion (
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            if (isEditing.value) {
+            if (isEditing) {
                 // Modo Edición
                 Button(
                     onClick = {
                         // Guardar los cambios
                         Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
-                        primerJuegoEditado()
-                        originalAlias.value = alias
-                        originalDificultad.value = dificultad
-                        originalTemporizador.value = temporizador
-                        isEditing.value = false
+                        perfilViewModel.marcarPrimerJuegoComoJugado()
+                        perfilViewModel.setEditing(false)
                     }
                 ) {
                     Text(stringResource(R.string.guardar))
@@ -124,10 +114,7 @@ fun Configuracion (
                 Button(
                     onClick = {
                         // Cancelar los cambios
-                        onAliasChange(originalAlias.value)
-                        onDificultadChange(originalDificultad.value)
-                        onTemporizadorChange(originalTemporizador.value)
-                        isEditing.value = false
+                        perfilViewModel.restablecerValoresOriginales()
                     }
                 ) {
                     Text(stringResource(R.string.cancelar))
@@ -135,7 +122,12 @@ fun Configuracion (
             } else {
                 Button(
                     onClick = {
-                        isEditing.value = true
+                        perfilViewModel.guardarValoresOriginales(
+                            alias,
+                            dificultad,
+                            temporizador
+                        )
+                        perfilViewModel.setEditing(true)
                     }
                 ) {
                     Text(stringResource(R.string.editar))
@@ -146,7 +138,6 @@ fun Configuracion (
                 ) {
                     Text(stringResource(R.string.inicio))
                 }
-
             }
         }
     }

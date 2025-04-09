@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.tictactoe.view_models.PerfilViewModel
 import kotlinx.coroutines.delay
 
 //Posibles posiciones
@@ -32,7 +33,10 @@ enum class Simbolo {
 }
 
 @Composable
-fun Jugar(navController: NavController, dificultad: Boolean, temporizador: Boolean) {
+fun Jugar(
+    navController: NavController,
+    perfilViewModel: PerfilViewModel // Recibe el ViewModel
+) {
     var tablero by rememberSaveable { mutableStateOf(Array(3) { Array(3) { Simbolo.Vacio } }) }
     var turno by rememberSaveable { mutableStateOf(Simbolo.X) }
     var ganador by rememberSaveable { mutableStateOf<Simbolo?>(null) }
@@ -46,7 +50,7 @@ fun Jugar(navController: NavController, dificultad: Boolean, temporizador: Boole
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp, top = 16.dp)
         ) {
-            if (temporizador) MostrarTiempo(segundos, minutos, juegoTerminado)
+            if (perfilViewModel.temporizador.value) MostrarTiempo(segundos, minutos, juegoTerminado)
         }
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -62,7 +66,7 @@ fun Jugar(navController: NavController, dificultad: Boolean, temporizador: Boole
                     turno = if (turno == Simbolo.X) Simbolo.O else Simbolo.X
 
                     if (turno == Simbolo.O && ganador == null && !juegoTerminado) {
-                        val movimientoIA = realizarMovimientoIA(nuevoTablero, dificultad)
+                        val movimientoIA = realizarMovimientoIA(nuevoTablero, perfilViewModel.dificultad.value)
                         movimientoIA?.let { (filaIA, columnaIA) ->
                             val nuevoTableroIA = nuevoTablero.copyOf().map { it.copyOf() }.toTypedArray()
                             nuevoTableroIA[filaIA][columnaIA] = Simbolo.O
