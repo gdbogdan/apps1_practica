@@ -32,7 +32,7 @@ enum class Simbolo {
 }
 
 @Composable
-fun Jugar(navController: NavController, dificultad: MutableState<Boolean>, temporizador: MutableState<Boolean>) {
+fun Jugar(navController: NavController, dificultad: Boolean, temporizador: Boolean) {
     var tablero by rememberSaveable { mutableStateOf(Array(3) { Array(3) { Simbolo.Vacio } }) }
     var turno by rememberSaveable { mutableStateOf(Simbolo.X) }
     var ganador by rememberSaveable { mutableStateOf<Simbolo?>(null) }
@@ -46,7 +46,7 @@ fun Jugar(navController: NavController, dificultad: MutableState<Boolean>, tempo
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp, top = 16.dp)
         ) {
-            if (temporizador.value) MostrarTiempo(segundos, minutos, juegoTerminado)
+            if (temporizador) MostrarTiempo(segundos, minutos, juegoTerminado)
         }
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -62,7 +62,7 @@ fun Jugar(navController: NavController, dificultad: MutableState<Boolean>, tempo
                     turno = if (turno == Simbolo.X) Simbolo.O else Simbolo.X
 
                     if (turno == Simbolo.O && ganador == null && !juegoTerminado) {
-                        val movimientoIA = realizarMovimientoIA(nuevoTablero, dificultad.value)
+                        val movimientoIA = realizarMovimientoIA(nuevoTablero, dificultad)
                         movimientoIA?.let { (filaIA, columnaIA) ->
                             val nuevoTableroIA = nuevoTablero.copyOf().map { it.copyOf() }.toTypedArray()
                             nuevoTableroIA[filaIA][columnaIA] = Simbolo.O

@@ -15,7 +15,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -27,23 +26,32 @@ import androidx.navigation.NavController
 import com.example.tictactoe.R
 
 @Composable
-fun Configuracion (navController: NavController, alias:MutableState<String>, dificultad:MutableState<Boolean>, temporizador: MutableState<Boolean>, primerJuegoEditado: () -> Unit){
+fun Configuracion (
+    navController: NavController,
+    alias: String,
+    dificultad: Boolean,
+    temporizador: Boolean,
+    primerJuegoEditado: () -> Unit,
+    onAliasChange: (String) -> Unit,
+    onDificultadChange: (Boolean) -> Unit,
+    onTemporizadorChange: (Boolean) -> Unit
+){
     val context = LocalContext.current
     val isEditing = rememberSaveable { mutableStateOf(false) }
     val toastMsg = stringResource(R.string.toast_config)
     val scrollState = rememberScrollState()
 
     //Valores originales
-    val originalAlias = rememberSaveable { mutableStateOf(alias.value) }
-    val originalDificultad = rememberSaveable { mutableStateOf(dificultad.value) }
-    val originalTemporizador = rememberSaveable { mutableStateOf(temporizador.value) }
+    val originalAlias = rememberSaveable { mutableStateOf(alias) }
+    val originalDificultad = rememberSaveable { mutableStateOf(dificultad) }
+    val originalTemporizador = rememberSaveable { mutableStateOf(temporizador) }
 
     Column(modifier = Modifier.padding(16.dp).verticalScroll(scrollState)){
         // Alias
         Text(text = stringResource(R.string.alias), modifier = Modifier.padding(bottom = 8.dp))
         TextField(
-            value = alias.value,
-            onValueChange = { if (isEditing.value) alias.value = it },
+            value = alias,
+            onValueChange = { if (isEditing.value) onAliasChange(it) },
             enabled = isEditing.value,
             placeholder = { Text(stringResource(R.string.placeholder)) }
         )
@@ -54,15 +62,15 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
         Text(text = stringResource(R.string.dificultad))
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             RadioButton(
-                selected = !dificultad.value,
-                onClick = { if (isEditing.value) dificultad.value = false },
+                selected = !dificultad,
+                onClick = { if (isEditing.value) onDificultadChange(false) },
                 enabled = isEditing.value
             )
             Text(text = stringResource(R.string.facil))
             Spacer(modifier = Modifier.width(16.dp))
             RadioButton(
-                selected = dificultad.value,
-                onClick = { if (isEditing.value) dificultad.value = true },
+                selected = dificultad,
+                onClick = { if (isEditing.value) onDificultadChange(true) },
                 enabled = isEditing.value
             )
             Text(text = stringResource(R.string.dificil))
@@ -74,15 +82,15 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
         Text(text = stringResource(R.string.temporizador))
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
             RadioButton(
-                selected = !temporizador.value,
-                onClick = { if (isEditing.value) temporizador.value = false },
+                selected = !temporizador,
+                onClick = { if (isEditing.value) onTemporizadorChange(false) },
                 enabled = isEditing.value
             )
             Text(text = stringResource(R.string.no))
             Spacer(modifier = Modifier.width(16.dp))
             RadioButton(
-                selected = temporizador.value,
-                onClick = { if (isEditing.value) temporizador.value = true },
+                selected = temporizador,
+                onClick = { if (isEditing.value) onTemporizadorChange(true) },
                 enabled = isEditing.value
             )
             Text(text = stringResource(R.string.si))
@@ -102,9 +110,9 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
                         // Guardar los cambios
                         Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
                         primerJuegoEditado()
-                        originalAlias.value = alias.value
-                        originalDificultad.value = dificultad.value
-                        originalTemporizador.value = temporizador.value
+                        originalAlias.value = alias
+                        originalDificultad.value = dificultad
+                        originalTemporizador.value = temporizador
                         isEditing.value = false
                     }
                 ) {
@@ -116,9 +124,9 @@ fun Configuracion (navController: NavController, alias:MutableState<String>, dif
                 Button(
                     onClick = {
                         // Cancelar los cambios
-                        alias.value = originalAlias.value
-                        dificultad.value = originalDificultad.value
-                        temporizador.value = originalTemporizador.value
+                        onAliasChange(originalAlias.value)
+                        onDificultadChange(originalDificultad.value)
+                        onTemporizadorChange(originalTemporizador.value)
                         isEditing.value = false
                     }
                 ) {

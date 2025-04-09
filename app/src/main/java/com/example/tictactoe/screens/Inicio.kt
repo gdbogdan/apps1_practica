@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,7 +26,7 @@ import com.example.tictactoe.R
 
 @SuppressLint("ContextCastToActivity")
 @Composable
-fun Inicio(navController: NavController, primerJuego: MutableState<Boolean>){
+fun Inicio(navController: NavController, primerJuego: Boolean){
     val scrollstate = rememberScrollState()
     val context = LocalContext.current
     val msgPrimerJuego = stringResource(R.string.primerJuego)
@@ -45,7 +44,7 @@ fun Inicio(navController: NavController, primerJuego: MutableState<Boolean>){
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            if(primerJuego.value){
+            if(primerJuego){
                 Toast.makeText(context, msgPrimerJuego, Toast.LENGTH_LONG).show()
                 navController.navigate("Configuracion")
             }else{
