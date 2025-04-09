@@ -23,10 +23,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.tictactoe.R
+import com.example.tictactoe.view_models.PerfilViewModel
 
 @SuppressLint("ContextCastToActivity")
 @Composable
-fun Inicio(navController: NavController, primerJuego: Boolean){
+fun Inicio(
+    navController: NavController,
+    perfilViewModel: PerfilViewModel
+){
     val scrollstate = rememberScrollState()
     val context = LocalContext.current
     val msgPrimerJuego = stringResource(R.string.primerJuego)
@@ -44,7 +48,7 @@ fun Inicio(navController: NavController, primerJuego: Boolean){
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            if(primerJuego){
+            if(perfilViewModel.primerJuego.value){
                 Toast.makeText(context, msgPrimerJuego, Toast.LENGTH_LONG).show()
                 navController.navigate("Configuracion")
             }else{

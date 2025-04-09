@@ -1,4 +1,4 @@
-package com.example.tictactoe.viewmodel
+package com.example.tictactoe.view_models
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +17,13 @@ class PerfilViewModel : ViewModel() {
     private val _primerJuego = mutableStateOf(true)
     val primerJuego: State<Boolean> = _primerJuego
 
+    private val _isEditing = mutableStateOf(false)
+    val isEditing: State<Boolean> = _isEditing
+
+    private val _originalAlias = mutableStateOf("")
+    private val _originalDificultad = mutableStateOf(false)
+    private val _originalTemporizador = mutableStateOf(false)
+
     fun actualizarAlias(nuevoAlias: String) {
         _alias.value = nuevoAlias
     }
@@ -31,5 +38,22 @@ class PerfilViewModel : ViewModel() {
 
     fun marcarPrimerJuegoComoJugado() {
         _primerJuego.value = false
+    }
+
+    fun setEditing(editing: Boolean) {
+        _isEditing.value = editing
+    }
+
+    fun guardarValoresOriginales(alias: String, dificultad: Boolean, temporizador: Boolean) {
+        _originalAlias.value = alias
+        _originalDificultad.value = dificultad
+        _originalTemporizador.value = temporizador
+    }
+
+    fun restablecerValoresOriginales() {
+        _alias.value = _originalAlias.value
+        _dificultad.value = _originalDificultad.value
+        _temporizador.value = _originalTemporizador.value
+        _isEditing.value = false // Salir del modo edición al cancelar
     }
 }
