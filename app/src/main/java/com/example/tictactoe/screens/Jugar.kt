@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,8 +25,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.tictactoe.R
 import com.example.tictactoe.view_models.PerfilViewModel
 import kotlinx.coroutines.delay
 
@@ -43,6 +52,18 @@ fun Jugar(
     val segundos = rememberSaveable { mutableIntStateOf(0) }
     val minutos = rememberSaveable { mutableIntStateOf(2) }
     var juegoTerminado by rememberSaveable { mutableStateOf(false) }
+    var mostrarDialogoGanador by rememberSaveable { mutableStateOf(false) }
+    var mensajeGanador by rememberSaveable { mutableStateOf("") }
+
+    if (mostrarDialogoGanador) {
+        AlertDialogGanador(
+            mensaje = mensajeGanador,
+            onAceptar = {
+                mostrarDialogoGanador = false
+                navController.navigate("Resultados") // Navegar a la pantalla de Resultados (a crear)
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -62,27 +83,77 @@ fun Jugar(
                     val nuevoTablero = tablero.copyOf().map { it.copyOf() }.toTypedArray()
                     nuevoTablero[fila][columna] = turno
                     tablero = nuevoTablero
-                    ganador = comprobarGanador(nuevoTablero)
-                    turno = if (turno == Simbolo.X) Simbolo.O else Simbolo.X
+                    val posibleGanador = comprobarGanador(nuevoTablero)
 
-                    if (turno == Simbolo.O && ganador == null && !juegoTerminado) {
-                        val movimientoIA = realizarMovimientoIA(nuevoTablero, perfilViewModel.dificultad.value)
-                        movimientoIA?.let { (filaIA, columnaIA) ->
-                            val nuevoTableroIA = nuevoTablero.copyOf().map { it.copyOf() }.toTypedArray()
-                            nuevoTableroIA[filaIA][columnaIA] = Simbolo.O
-                            tablero = nuevoTableroIA
-                            ganador = comprobarGanador(nuevoTableroIA)
-                            turno = Simbolo.X
-                        }
-                    }
-
-                    if (ganador != null) {
+                    if (posibleGanador != null) {
+                        ganador = posibleGanador
                         juegoTerminado = true
+                        mensajeGanador = if (ganador == Simbolo.X) "¡Has ganado!" else "¡Has perdido!"
+                        mostrarDialogoGanador = true
+                    } else {
+                        turno = if (turno == Simbolo.X) Simbolo.O else Simbolo.X
+
+                        if (turno == Simbolo.O && ganador == null && !juegoTerminado) {
+                            val movimientoIA = realizarMovimientoIA(nuevoTablero, perfilViewModel.dificultad.value)
+                            movimientoIA?.let { (filaIA, columnaIA) ->
+                                val nuevoTableroIA = nuevoTablero.copyOf().map { it.copyOf() }.toTypedArray()
+                                nuevoTableroIA[filaIA][columnaIA] = Simbolo.O
+                                tablero = nuevoTableroIA
+                                val posibleGanadorIA = comprobarGanador(nuevoTableroIA)
+                                if (posibleGanadorIA != null) {
+                                    ganador = posibleGanadorIA
+                                    juegoTerminado = true
+                                    mensajeGanador = if (ganador == Simbolo.X) "¡Has ganado!" else "¡Has perdido!"
+                                    mostrarDialogoGanador = true
+                                } else {
+                                    turno = Simbolo.X
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun AlertDialogGanador(mensaje: String, onAceptar: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { /* No hacer nada al tocar fuera */ },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = mensaje,
+                    style = TextStyle(
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = { onAceptar() }) {
+                    Text(stringResource(R.string.continuar))
+                }
+            }
+        }
+    )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun AlertDialogGanadorPreviewGanador() {
+    AlertDialogGanador(mensaje = "¡Has perdido!", onAceptar = {})
 }
 
 @Composable
