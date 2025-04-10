@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
                         composable ("Inicio") {
                             Inicio(
                                 navController = navController,
-                                perfilViewModel = perfilViewModel
+                                perfilViewModel.primerJuego.value
                             )
                         }
                         composable ("Instrucciones") {
@@ -65,7 +65,8 @@ class MainActivity : ComponentActivity() {
                         composable ("Jugar") {
                             Jugar(
                                 navController = navController,
-                                perfilViewModel = perfilViewModel
+                                perfilViewModel.temporizador.value,
+                                perfilViewModel.dificultad.value
                             )
                         }
                         composable ("Configuracion"){
