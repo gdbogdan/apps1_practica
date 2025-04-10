@@ -16,12 +16,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,8 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tictactoe.R
+import com.example.tictactoe.view_models.JuegoViewModel
 import kotlinx.coroutines.delay
 
 //Posibles posiciones
@@ -41,26 +39,26 @@ enum class Simbolo {
 }
 
 @Composable
-fun Jugar(
-    navController: NavController,
-    dificultad: Boolean,
-    temporizador: Boolean
-) {
-    var tablero by rememberSaveable { mutableStateOf(Array(3) { Array(3) { Simbolo.Vacio } }) }
-    var turno by rememberSaveable { mutableStateOf(Simbolo.X) }
-    var ganador by rememberSaveable { mutableStateOf<Simbolo?>(null) }
-    val segundos = rememberSaveable { mutableIntStateOf(0) }
-    val minutos = rememberSaveable { mutableIntStateOf(2) }
-    var juegoTerminado by rememberSaveable { mutableStateOf(false) }
-    var mostrarDialogoGanador by rememberSaveable { mutableStateOf(false) }
-    var mensajeGanador by rememberSaveable { mutableStateOf("") }
+fun Jugar(navController: NavController, dificultad: Boolean, temporizador: Boolean) {
+    val viewModel: JuegoViewModel = viewModel()
+    val tablero by viewModel.tablero
+    val mostrarDialogo by viewModel.mostrarDialogoGanador
+    val mensajeGanador by viewModel.mensajeGanador
 
-    if (mostrarDialogoGanador) {
+    LaunchedEffect(temporizador) {
+        if (temporizador) {
+            viewModel.iniciarTemporizador()
+        } else {
+            viewModel.detenerTemporizador()
+        }
+    }
+
+    if (mostrarDialogo) {
         AlertDialogGanador(
             mensaje = mensajeGanador,
             onAceptar = {
-                mostrarDialogoGanador = false
-                navController.navigate("Resultados") // Navegar a la pantalla de Resultados (a crear)
+                viewModel.reiniciarJuego()
+                navController.navigate("Resultados")
             }
         )
     }
@@ -71,51 +69,22 @@ fun Jugar(
                 .align(Alignment.TopEnd)
                 .padding(end = 16.dp, top = 16.dp)
         ) {
-            if (temporizador) MostrarTiempo(segundos, minutos, juegoTerminado)
+            if (temporizador) {
+                MostrarTiempo(segundos = viewModel.segundos, minutos = viewModel.minutos)
+            }
         }
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Tablero(tablero) { fila, columna ->
-                if (ganador == null && tablero[fila][columna] == Simbolo.Vacio && !juegoTerminado) {
-                    val nuevoTablero = tablero.copyOf().map { it.copyOf() }.toTypedArray()
-                    nuevoTablero[fila][columna] = turno
-                    tablero = nuevoTablero
-                    val posibleGanador = comprobarGanador(nuevoTablero)
-
-                    if (posibleGanador != null) {
-                        ganador = posibleGanador
-                        juegoTerminado = true
-                        mensajeGanador = if (ganador == Simbolo.X) "¡Has ganado!" else "¡Has perdido!"
-                        mostrarDialogoGanador = true
-                    } else {
-                        turno = if (turno == Simbolo.X) Simbolo.O else Simbolo.X
-
-                        if (turno == Simbolo.O && ganador == null && !juegoTerminado) {
-                            val movimientoIA = realizarMovimientoIA(nuevoTablero, dificultad)
-                            movimientoIA?.let { (filaIA, columnaIA) ->
-                                val nuevoTableroIA = nuevoTablero.copyOf().map { it.copyOf() }.toTypedArray()
-                                nuevoTableroIA[filaIA][columnaIA] = Simbolo.O
-                                tablero = nuevoTableroIA
-                                val posibleGanadorIA = comprobarGanador(nuevoTableroIA)
-                                if (posibleGanadorIA != null) {
-                                    ganador = posibleGanadorIA
-                                    juegoTerminado = true
-                                    mensajeGanador = if (ganador == Simbolo.X) "¡Has ganado!" else "¡Has perdido!"
-                                    mostrarDialogoGanador = true
-                                } else {
-                                    turno = Simbolo.X
-                                }
-                            }
-                        }
-                    }
-                }
+            Tablero(tablero = tablero) { fila, columna ->
+                viewModel.jugarCasilla(fila, columna, dificultad)
             }
         }
     }
 }
+
 
 @Composable
 fun AlertDialogGanador(mensaje: String, onAceptar: () -> Unit) {
@@ -188,89 +157,12 @@ fun Casilla(simbolo: Simbolo, onClick: () -> Unit) {
     }
 }
 
-//Compruebo las casillas vacías:
-fun comprobarGanador(tablero: Array<Array<Simbolo>>): Simbolo? {
-    // Comprobar filas
-    for (fila in tablero) {
-        if (fila[0] != Simbolo.Vacio && fila[0] == fila[1] && fila[1] == fila[2]) {
-            return fila[0]
-        }
-    }
-
-    // Comprobar columnas
-    for (columna in tablero[0].indices) {
-        if (tablero[0][columna] != Simbolo.Vacio &&
-            tablero[0][columna] == tablero[1][columna] &&
-            tablero[1][columna] == tablero[2][columna]
-        ) {
-            return tablero[0][columna]
-        }
-    }
-
-    // Comprobar diagonales
-    if (tablero[0][0] != Simbolo.Vacio &&
-        tablero[0][0] == tablero[1][1] &&
-        tablero[1][1] == tablero[2][2]
-    ) {
-        return tablero[0][0]
-    }
-
-    if (tablero[0][2] != Simbolo.Vacio &&
-        tablero[0][2] == tablero[1][1] &&
-        tablero[1][1] == tablero[2][0]
-    ) {
-        return tablero[0][2]
-    }
-
-    // Comprobar si hay empate
-    if (tablero.all { fila -> fila.all { it != Simbolo.Vacio } }) {
-        return Simbolo.Vacio // Empate
-    }
-
-    return null // No hay ganador aún
-}
-
-fun realizarMovimientoIA(tablero: Array<Array<Simbolo>>, dificultad: Boolean): Pair<Int, Int>? {
-    val casillasVacias = mutableListOf<Pair<Int, Int>>()
-    for (fila in tablero.indices) {
-        for (columna in tablero[fila].indices) {
-            if (tablero[fila][columna] == Simbolo.Vacio) {
-                casillasVacias.add(Pair(fila, columna))
-            }
-        }
-    }
-
-    if (casillasVacias.isEmpty()) return null
-
-    return if (dificultad) {
-        casillasVacias.random()
-    } else {
-        casillasVacias.first()
-    }
-}
-
-//Funciona para el temporizador
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun MostrarTiempo(
-    segundos: MutableState<Int>,
-    minutos: MutableState<Int>,
-    juegoTerminado: Boolean
+    segundos: State<Int>,
+    minutos: State<Int>
 ) {
-    LaunchedEffect(juegoTerminado) {
-        var totalSegundos = minutos.value * 60 + segundos.value
-
-        while (totalSegundos >= 0 && !juegoTerminado) {
-            val displayMinutos = totalSegundos / 60
-            val displaySegundos = totalSegundos % 60
-            minutos.value = displayMinutos
-            segundos.value = displaySegundos
-
-            delay(1000)
-            totalSegundos--
-        }
-    }
-
     Text(String.format("%02d:%02d", minutos.value, segundos.value))
 }
