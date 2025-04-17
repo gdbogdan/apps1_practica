@@ -28,11 +28,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.tictactoe.screens.Configuracion
 import com.example.tictactoe.screens.Inicio
 import com.example.tictactoe.screens.Instrucciones
 import com.example.tictactoe.screens.Jugar
 import com.example.tictactoe.screens.Partidas
+import com.example.tictactoe.screens.Perfil
 import com.example.tictactoe.view_models.PerfilViewModel
 
 class MainActivity : ComponentActivity() {
@@ -65,18 +65,19 @@ class MainActivity : ComponentActivity() {
                         composable ("Jugar") {
                             Jugar(
                                 navController = navController,
+                                perfilViewModel.dificultad.value,
                                 perfilViewModel.temporizador.value,
-                                perfilViewModel.dificultad.value
+                                perfilViewModel.minutos.value,
+                                perfilViewModel.segundos.value
 
                             )
                         }
-                        composable ("Configuracion"){
-                            Configuracion(
+                        composable ("Perfil"){
+                            Perfil(
                                 navController = navController,
                                 perfilViewModel = perfilViewModel
                             )
                         }
-
                         composable ( "Partidas"){
                             Partidas(navController)
                         }
@@ -91,8 +92,8 @@ class MainActivity : ComponentActivity() {
         TopAppBar(
             title = { Text("Tic Tac Toe")},
             actions = {
-                IconButton(onClick = {navController.navigate("Configuracion")}) {
-                    Icon(Icons.Filled.Settings, contentDescription = "Configuracion")
+                IconButton(onClick = {navController.navigate("Perfil")}) {
+                    Icon(Icons.Filled.Settings, contentDescription = "Perfil")
                 }
             }
         )

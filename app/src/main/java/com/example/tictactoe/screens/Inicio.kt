@@ -49,7 +49,7 @@ fun Inicio(
         Button(onClick = {
             if(primerJuego){
                 Toast.makeText(context, msgPrimerJuego, Toast.LENGTH_LONG).show()
-                navController.navigate("Configuracion")
+                navController.navigate("Perfil")
             }else{
                 navController.navigate("Jugar")
             }

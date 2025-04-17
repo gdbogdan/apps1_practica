@@ -1,6 +1,7 @@
 package com.example.tictactoe.view_models
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 
@@ -13,6 +14,24 @@ class PerfilViewModel : ViewModel() {
 
     private val _temporizador = mutableStateOf(false)
     val temporizador: State<Boolean> = _temporizador
+
+    // Minutos del temporizador (interno y externo)
+    private val _minutos = mutableIntStateOf(0)
+    val minutos: State<Int> = _minutos
+
+    // Segundos del temporizador (interno y  externo)
+    private val _segundos = mutableIntStateOf(0)
+    val segundos: State<Int> = _segundos
+
+    fun actualizarMinutos(nuevosMinutos: Int) {
+        _minutos.value = nuevosMinutos
+    }
+
+    fun actualizarSegundos(nuevosSegundos: Int) {
+        if (nuevosSegundos in 0..59) {
+            _segundos.intValue = nuevosSegundos
+        }
+    }
 
     private val _primerJuego = mutableStateOf(true)
     val primerJuego: State<Boolean> = _primerJuego
