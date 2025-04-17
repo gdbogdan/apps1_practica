@@ -25,7 +25,11 @@
     <string name="turno_de">Turno de las %s</string>
     <string name="has_ganado">¡Has ganado!</string>
     <string name="has_perdido">¡Has perdido!</string>
+    <string name="mm">mm</string>
+    <string name="ss">ss</string>
+    <string name="minutos">Minutos</string>
+    <string name="segundos">Segundos</string>
     <string name="empate">¡Empate</string>
-
+    <string name="tiempo_maximo">Tiempo máximo de la partida:</string>
 
 </resources>

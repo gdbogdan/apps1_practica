@@ -18,18 +18,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tictactoe.R
-import androidx.compose.runtime.State
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun JugarUI(
     tablero: Array<Array<Simbolo>>,
-    temporizadorActivo: Boolean,
-    segundos: Int,
-    minutos: Int,
     turno: Simbolo,
     ganador: Simbolo?,
     juegoTerminado: Boolean,
-    onCasillaClick: (Int, Int) -> Unit
+    onCasillaClick: (Int, Int) -> Unit,
+    tiempoTranscurridoSegundos: Int,
+    minutosLimite: Int,
+    segundosLimite: Int,
+    temporizadorActivo: Boolean
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -58,7 +59,9 @@ fun JugarUI(
                 .padding(end = 16.dp, top = 56.dp)
         ) {
             if (temporizadorActivo) {
-                MostrarTiempo(segundos, minutos)
+                val minutosActuales = tiempoTranscurridoSegundos / 60
+                val segundosActuales = tiempoTranscurridoSegundos % 60
+                Text(String.format("%02d:%02d / %02d:%02d", minutosActuales, segundosActuales, minutosLimite, segundosLimite))
             }
         }
         Column(
@@ -73,13 +76,4 @@ fun JugarUI(
             }
         }
     }
-}
-
-@SuppressLint("DefaultLocale")
-@Composable
-fun MostrarTiempo(
-    segundos:Int,
-    minutos: Int
-) {
-    Text(String.format("%02d:%02d", minutos, segundos))
 }

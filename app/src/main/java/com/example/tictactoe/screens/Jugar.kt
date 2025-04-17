@@ -11,6 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -21,14 +27,19 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tictactoe.R
-import com.example.tictactoe.view_models.JuegoViewModel
+import com.example.tictactoe.view_models.JugarViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun Jugar(
     navController: NavController,
     dificultad: Boolean,
     temporizadorActivo: Boolean,
-    viewModel: JuegoViewModel = viewModel()
+    minutos: Int,
+    segundos: Int,
+    viewModel: JugarViewModel = viewModel()
 ) {
     val tablero by viewModel.tablero
     val mostrarDialogo by viewModel.mostrarDialogoGanador
@@ -36,14 +47,26 @@ fun Jugar(
     val turno by viewModel.turno
     val ganador by viewModel.ganador
     val juegoTerminado by viewModel.juegoTerminado
-    val segundos by viewModel.segundos
-    val minutos by viewModel.minutos
+
+    val tiempoTranscurridoSegundos = rememberSaveable { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+    var temporizadorJob by remember { mutableStateOf<Job?>(null) }
 
     LaunchedEffect(temporizadorActivo) {
+        temporizadorJob?.cancel()
         if (temporizadorActivo) {
-            viewModel.iniciarTemporizador()
+            val tiempoLimite = minutos * 60 + segundos
+            temporizadorJob = scope.launch {
+                while (!juegoTerminado && tiempoTranscurridoSegundos.value < tiempoLimite) {
+                    delay(1000)
+                    tiempoTranscurridoSegundos.value++
+                }
+                if (!juegoTerminado && tiempoTranscurridoSegundos.value >= tiempoLimite && tiempoLimite > 0) {
+                    viewModel.finalizarJuegoPorTiempoAgotado()
+                }
+            }
         } else {
-            viewModel.detenerTemporizador()
+            tiempoTranscurridoSegundos.value = 0 // Resetear el tiempo si el temporizador no está activo
         }
     }
 
@@ -52,6 +75,7 @@ fun Jugar(
             mensaje = mensajeGanador,
             onAceptar = {
                 viewModel.reiniciarJuego()
+                tiempoTranscurridoSegundos.value = 0
                 navController.navigate("Resultados")
             }
         )
@@ -60,12 +84,13 @@ fun Jugar(
     if (!mostrarDialogo) {
         JugarUI(
             tablero = tablero,
-            temporizadorActivo = temporizadorActivo,
-            segundos = segundos,
-            minutos = minutos,
             turno = turno,
             ganador = ganador,
             juegoTerminado = juegoTerminado,
+            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.value,
+            minutosLimite = minutos,
+            segundosLimite = segundos,
+            temporizadorActivo = temporizadorActivo,
             onCasillaClick = { fila, columna ->
                 viewModel.jugarCasilla(fila, columna, dificultad)
             }
