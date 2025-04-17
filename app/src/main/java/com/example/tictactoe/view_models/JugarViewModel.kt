@@ -41,7 +41,7 @@ class JuegoViewModel : ViewModel() {
     private val _minutos = mutableIntStateOf(2)
     val minutos: State<Int> = _minutos
 
-    // Segundos del temporizador (interno y externo)
+    // Segundos del temporizador (interno y  externo)
     private val _segundos = mutableIntStateOf(0)
     val segundos: State<Int> = _segundos
 
@@ -105,17 +105,21 @@ class JuegoViewModel : ViewModel() {
     }
 
     private fun moverIA(dificultad: Boolean) {
-        val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
-        movimiento?.let { (fila, columna) ->
-            val nuevoTablero = _tablero.value.copyOf().map { it.copyOf() }.toTypedArray()
-            nuevoTablero[fila][columna] = Simbolo.O
-            _tablero.value = nuevoTablero
-            val posibleGanador = comprobarGanador(nuevoTablero)
-            if (posibleGanador != null) {
-                finalizarJuego(posibleGanador)
-                detenerTemporizador()
-            } else {
-                _turno.value = Simbolo.X
+        CoroutineScope(Dispatchers.Default).launch {
+            delay(2000) // Esperar 2 segundos
+
+            val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
+            movimiento?.let { (fila, columna) ->
+                val nuevoTablero = _tablero.value.copyOf().map { it.copyOf() }.toTypedArray()
+                nuevoTablero[fila][columna] = Simbolo.O
+                _tablero.value = nuevoTablero
+                val posibleGanador = comprobarGanador(nuevoTablero)
+                if (posibleGanador != null) {
+                    finalizarJuego(posibleGanador)
+                    detenerTemporizador()
+                } else {
+                    _turno.value = Simbolo.X // El turno vuelve al jugador después del movimiento de la IA
+                }
             }
         }
     }

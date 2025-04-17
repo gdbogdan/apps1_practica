@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 perfilViewModel.temporizador.value,
                                 perfilViewModel.dificultad.value
+
                             )
                         }
                         composable ("Configuracion"){
