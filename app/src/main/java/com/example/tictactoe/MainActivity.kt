@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -33,6 +34,7 @@ import com.example.tictactoe.screens.Instrucciones
 import com.example.tictactoe.screens.Jugar
 import com.example.tictactoe.screens.Partidas
 import com.example.tictactoe.screens.Perfil
+import com.example.tictactoe.screens.Resultados
 import com.example.tictactoe.view_models.PerfilViewModel
 
 class MainActivity : ComponentActivity() {
@@ -47,7 +49,8 @@ class MainActivity : ComponentActivity() {
             Scaffold(
                 topBar = {TopBar(navController)},
                 bottomBar = {BottomBar(navController)}
-            ) { innerPadding ->
+            ) {
+                innerPadding ->
                     NavHost(
                         navController = navController,
                         startDestination = "Inicio",
@@ -81,6 +84,12 @@ class MainActivity : ComponentActivity() {
                         composable ( "Partidas"){
                             Partidas(navController)
                         }
+                        composable("Resultados") {
+                            Resultados(
+                                navController = navController,
+                                perfilViewModel = perfilViewModel
+                            )
+                        }
                     }
             }
         }
@@ -93,7 +102,7 @@ class MainActivity : ComponentActivity() {
             title = { Text("Tic Tac Toe")},
             actions = {
                 IconButton(onClick = {navController.navigate("Perfil")}) {
-                    Icon(Icons.Filled.Settings, contentDescription = "Perfil")
+                    Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.Perfil))
                 }
             }
         )
@@ -105,21 +114,21 @@ class MainActivity : ComponentActivity() {
         val currentRoute = navBackStackEntry?.destination?.route
         NavigationBar {
             NavigationBarItem(
-                icon = { Icon(Icons.Filled.Info, contentDescription = "Instrucciones") },
-                label = { Text("Instrucciones") },
-                selected = currentRoute == "Instrucciones",
+                icon = { Icon(Icons.Filled.Info, contentDescription = stringResource(R.string.Instrucciones)) },
+                label = { Text(stringResource(R.string.Instrucciones)) },
+                selected = currentRoute == stringResource(R.string.Instrucciones),
                 onClick = { navController.navigate("Instrucciones") }
             )
             NavigationBarItem(
-                icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
-                label = { Text("Inicio") },
-                selected = currentRoute == "Inicio",
+                icon = { Icon(Icons.Filled.Home, contentDescription = stringResource(R.string.Inicio)) },
+                label = { Text(stringResource(R.string.Inicio))},
+                selected = currentRoute == stringResource(R.string.Inicio),
                 onClick = { navController.navigate("Inicio") }
             )
             NavigationBarItem(
-                icon = { Icon(Icons.Filled.Menu, contentDescription = "Partidas") },
-                label = { Text("Partidas") },
-                selected = currentRoute == "Partidas",
+                icon = { Icon(Icons.Filled.Menu, contentDescription = stringResource(R.string.Partidas)) },
+                label = { Text(stringResource(R.string.Partidas)) },
+                selected = currentRoute == stringResource(R.string.Partidas),
                 onClick = { navController.navigate("Partidas") }
             )
         }

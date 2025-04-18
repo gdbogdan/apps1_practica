@@ -76,7 +76,9 @@ fun Jugar(
             onAceptar = {
                 viewModel.reiniciarJuego()
                 tiempoTranscurridoSegundos.value = 0
-                navController.navigate("Resultados")
+            },
+            onNavegarResultados = {
+                navController.navigate("Resultados") // Pasa la función de navegación aquí
             }
         )
     }
@@ -99,7 +101,7 @@ fun Jugar(
 }
 
 @Composable
-fun AlertDialogGanador(mensaje: String, onAceptar: () -> Unit) {
+fun AlertDialogGanador(mensaje: String, onAceptar: () -> Unit, onNavegarResultados: () -> Unit) {
     AlertDialog(
         onDismissRequest = { /* No hacer nada al tocar fuera */ },
         text = {
@@ -122,7 +124,12 @@ fun AlertDialogGanador(mensaje: String, onAceptar: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Button(onClick = { onAceptar() }) {
+                Button(
+                    onClick = {
+                        onAceptar()
+                        onNavegarResultados()
+                    }
+                ) {
                     Text(stringResource(R.string.continuar))
                 }
             }

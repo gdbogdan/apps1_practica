@@ -42,7 +42,7 @@ fun Inicio(
         Image(
             modifier = Modifier.fillMaxWidth(),
             painter = painterResource(id = R.drawable.tic_tac_toe),
-            contentDescription = "Letrero Tic Tac Toe"
+            contentDescription = stringResource(R.string.letrero)
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -54,12 +54,12 @@ fun Inicio(
                 navController.navigate("Jugar")
             }
         }) {
-            Text(text = "JUGAR")
+            Text(text = stringResource(R.string.jugar))
         }
         Spacer(modifier = Modifier.height(8.dp))
         val activity = (LocalContext.current as? Activity)
         Button(onClick = { activity?.finish() }) {
-            Text(text = "SALIR")
+            Text(text = stringResource(R.string.salir))
         }
     }
 }

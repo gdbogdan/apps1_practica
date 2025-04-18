@@ -27,6 +27,6 @@ fun Partidas(navController: NavController){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Estás en la pantalla de Partidas Guardadas")
+        Text("PRÓXIMAMENTE DISPONIBLE")
     }
 }
