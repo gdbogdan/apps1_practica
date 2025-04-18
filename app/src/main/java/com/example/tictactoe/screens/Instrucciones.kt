@@ -61,7 +61,7 @@ fun InstruccionesPreview(){
         Row {
             Button(onClick = {/*TODO*/}) {
                 Text(
-                    text = "VOLVER AL INICIO"
+                    text = stringResource(R.string.inicio)
                 )
             }
         }

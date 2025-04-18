@@ -6,9 +6,12 @@
     <string name="instrucciones_perfil">El icono del engranaje que aparece arriba a la derecha, es el botón de tu perfil, pudiendo modificar desde allí, tu nombre, dificultad y temporizador.</string>
 
     <string name="alias">Alias del Jugador</string>
+    <string name="alias_r">Alias: %1$s</string>
     <string name="placeholder">Ejemplo: John Wick</string>
     <string name="dificultad">Dificultad de juego</string>
+    <string name="dificultad_r">Dificultad: %1$s</string>
     <string name="temporizador">Temporizador</string>
+    <string name="temporizador_r">Temporizador: %1$s</string>
     <string name="primerJuego">Primera vez que juegas, tienes que editar por primera vez tu perfil</string>
 
     <string name="facil">Fácil</string>
@@ -31,5 +34,16 @@
     <string name="segundos">Segundos</string>
     <string name="empate">¡Empate</string>
     <string name="tiempo_maximo">Tiempo máximo de la partida:</string>
+    <string name="Instrucciones">Instrucciones</string>
+    <string name="Inicio">Inicio</string>
+    <string name="Partidas">Partidas</string>
+    <string name="Perfil">Perfil</string>
+    <string name="letrero">Letrero de juego TicTacToe</string>
+    <string name="salir">SALIR</string>
+    <string name="jugar">JUGAR</string>
+    <string name="enviar_email">ENVIAR E-MAIL</string>
+    <string name="nueva_partida">PARTIDA NUEVA</string>
+    <string name="email">E-mail</string>
+    <string name="zero">00</string>
 
 </resources>

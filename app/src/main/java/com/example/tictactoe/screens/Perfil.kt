@@ -110,7 +110,7 @@ fun Perfil(
                         perfilViewModel.actualizarMinutos(valor)
                     },
                     label = { Text(stringResource(R.string.minutos)) },
-                    placeholder = { Text("00") },
+                    placeholder = { Text(stringResource(R.string.zero)) },
                     modifier = Modifier.weight(1f),
                     singleLine = true
                 )
@@ -124,7 +124,7 @@ fun Perfil(
                         perfilViewModel.actualizarSegundos(valor)
                     },
                     label = { Text(stringResource(R.string.segundos)) },
-                    placeholder = { Text("00") },
+                    placeholder = { Text(stringResource(R.string.zero)) },
                     modifier = Modifier.weight(1f),
                     singleLine = true
                 )
