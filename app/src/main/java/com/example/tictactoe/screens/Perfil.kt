@@ -1,5 +1,6 @@
 package com.example.tictactoe.screens
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import com.example.tictactoe.R
 import com.example.tictactoe.view_models.PerfilViewModel
 import java.util.concurrent.TimeUnit
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun Perfil(
     navController: NavController,
@@ -99,12 +101,12 @@ fun Perfil(
             Text(text = stringResource(R.string.si))
         }
 
-        // Configuración del Tiempo Máximo (solo visible si el temporizador == true)
+        // Configuración del Tiempo Máximo (solo visible si se está editando y temporizador == true)
         if (temporizador) {
             Text(text = stringResource(R.string.tiempo_maximo))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
-                    value = if (minutos == 0) "" else minutos.toString(),
+                    value = String.format("%02d", minutos),
                     onValueChange = { nuevoTexto ->
                         val valor = nuevoTexto.toIntOrNull() ?: 0
                         perfilViewModel.actualizarMinutos(valor)
@@ -112,13 +114,14 @@ fun Perfil(
                     label = { Text(stringResource(R.string.minutos)) },
                     placeholder = { Text(stringResource(R.string.zero)) },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = isEditing // Solo editable si isEditing es true
                 )
 
                 Text(text = ":", modifier = Modifier.padding(horizontal = 8.dp))
 
                 OutlinedTextField(
-                    value = if (segundos == 0) "" else segundos.toString(),
+                    value = String.format("%02d", segundos),
                     onValueChange = { nuevoTexto ->
                         val valor = nuevoTexto.toIntOrNull() ?: 0
                         perfilViewModel.actualizarSegundos(valor)
@@ -126,7 +129,8 @@ fun Perfil(
                     label = { Text(stringResource(R.string.segundos)) },
                     placeholder = { Text(stringResource(R.string.zero)) },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = isEditing // Solo editable si isEditing es true
                 )
             }
         }
@@ -169,7 +173,9 @@ fun Perfil(
                         perfilViewModel.guardarValoresOriginales(
                             alias,
                             dificultad,
-                            temporizador
+                            temporizador,
+                            minutos,
+                            segundos
                         )
                         perfilViewModel.setEditing(true)
                     }

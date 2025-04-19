@@ -45,5 +45,7 @@
     <string name="nueva_partida">PARTIDA NUEVA</string>
     <string name="email">E-mail</string>
     <string name="zero">00</string>
+    <string name="tiempo_introducido_r">Tiempo Introducido: %1$02d:%2$02d</string>
+    <string name="tiempo_restante_r">Tiempo Restante: %1$02d:%2$02d</string>
 
 </resources>

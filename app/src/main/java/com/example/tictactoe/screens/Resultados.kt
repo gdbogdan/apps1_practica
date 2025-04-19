@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.tictactoe.R
 import com.example.tictactoe.view_models.PerfilViewModel
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @SuppressLint("ContextCastToActivity")
@@ -33,13 +34,18 @@ fun Resultados(
     navController: NavController,
     perfilViewModel: PerfilViewModel
 ){
-    val fechaHoraActual = remember { LocalDateTime.now() }
+    val madridZoneId = ZoneId.of("Europe/Madrid")
+    val fechaHoraActual = remember { LocalDateTime.now(madridZoneId) }
     val formatoFechaHora = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy")
     val fechaHoraFormateada = fechaHoraActual.format(formatoFechaHora)
 
     val alias by perfilViewModel.alias
     val dificultad by perfilViewModel.dificultad
     val temporizador by perfilViewModel.temporizador
+    val minutosConfigurados by perfilViewModel.minutos
+    val segundosConfigurados by perfilViewModel.segundos
+    val minutosRestantes by perfilViewModel.minutosRestantes
+    val segundosRestantes by perfilViewModel.segundosRestantes
 
     var email by remember { mutableStateOf("") }
 
@@ -72,6 +78,22 @@ fun Resultados(
                 if (temporizador) stringResource(R.string.si) else stringResource(R.string.no)
             )
         )
+        if (temporizador) {
+            Text(
+                text = stringResource(
+                    R.string.tiempo_introducido_r,
+                    minutosConfigurados,
+                    segundosConfigurados
+                )
+            )
+            Text(
+                text = stringResource(
+                    R.string.tiempo_restante_r,
+                    minutosRestantes,
+                    segundosRestantes
+                )
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

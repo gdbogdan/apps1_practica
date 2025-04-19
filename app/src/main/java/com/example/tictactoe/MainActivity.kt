@@ -68,11 +68,7 @@ class MainActivity : ComponentActivity() {
                         composable ("Jugar") {
                             Jugar(
                                 navController = navController,
-                                perfilViewModel.dificultad.value,
-                                perfilViewModel.temporizador.value,
-                                perfilViewModel.minutos.value,
-                                perfilViewModel.segundos.value
-
+                                perfilViewModel = perfilViewModel
                             )
                         }
                         composable ("Perfil"){

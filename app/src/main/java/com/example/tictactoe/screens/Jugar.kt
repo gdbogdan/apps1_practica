@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 import com.example.tictactoe.view_models.JugarViewModel
+import com.example.tictactoe.view_models.PerfilViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -35,18 +36,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun Jugar(
     navController: NavController,
-    dificultad: Boolean,
-    temporizadorActivo: Boolean,
-    minutos: Int,
-    segundos: Int,
-    viewModel: JugarViewModel = viewModel()
+    perfilViewModel: PerfilViewModel // Recibimos el PerfilViewModel directamente
 ) {
+    val viewModel: JugarViewModel = viewModel()
     val tablero by viewModel.tablero
     val mostrarDialogo by viewModel.mostrarDialogoGanador
     val mensajeGanador by viewModel.mensajeGanador
     val turno by viewModel.turno
     val ganador by viewModel.ganador
     val juegoTerminado by viewModel.juegoTerminado
+
+    // Accedemos a los valores del PerfilViewModel
+    val dificultad by perfilViewModel.dificultad
+    val temporizadorActivo by perfilViewModel.temporizador
+    val minutos by perfilViewModel.minutos
+    val segundos by perfilViewModel.segundos
 
     val tiempoTranscurridoSegundos = rememberSaveable { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
@@ -66,20 +70,22 @@ fun Jugar(
                 }
             }
         } else {
-            tiempoTranscurridoSegundos.value = 0 // Resetear el tiempo si el temporizador no está activo
+            tiempoTranscurridoSegundos.value = 0
         }
     }
 
-    if (mostrarDialogo) {
+    if (mostrarDialogo || juegoTerminado || (temporizadorActivo && tiempoTranscurridoSegundos.value >= (minutos * 60 + segundos) && (minutos * 60 + segundos) > 0)) {
+        val tiempoTotalSegundos = minutos * 60 + segundos
         AlertDialogGanador(
             mensaje = mensajeGanador,
-            onAceptar = {
+            onContinuar = {
                 viewModel.reiniciarJuego()
                 tiempoTranscurridoSegundos.value = 0
+                navController.navigate("Resultados")
             },
-            onNavegarResultados = {
-                navController.navigate("Resultados") // Pasa la función de navegación aquí
-            }
+            perfilViewModel = perfilViewModel,
+            tiempoTotalSegundos = tiempoTotalSegundos,
+            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.value
         )
     }
 
@@ -101,7 +107,13 @@ fun Jugar(
 }
 
 @Composable
-fun AlertDialogGanador(mensaje: String, onAceptar: () -> Unit, onNavegarResultados: () -> Unit) {
+fun AlertDialogGanador(
+    mensaje: String,
+    onContinuar: () -> Unit,
+    perfilViewModel: PerfilViewModel,
+    tiempoTotalSegundos: Int,
+    tiempoTranscurridoSegundos: Int
+) {
     AlertDialog(
         onDismissRequest = { /* No hacer nada al tocar fuera */ },
         text = {
@@ -126,8 +138,8 @@ fun AlertDialogGanador(mensaje: String, onAceptar: () -> Unit, onNavegarResultad
             ) {
                 Button(
                     onClick = {
-                        onAceptar()
-                        onNavegarResultados()
+                        perfilViewModel.calcularTiempoRestante(tiempoTotalSegundos, tiempoTranscurridoSegundos)
+                        onContinuar()
                     }
                 ) {
                     Text(stringResource(R.string.continuar))
