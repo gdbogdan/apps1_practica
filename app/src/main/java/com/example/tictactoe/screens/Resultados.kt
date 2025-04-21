@@ -2,6 +2,7 @@ package com.example.tictactoe.screens
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,7 @@ import com.example.tictactoe.view_models.PerfilViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import android.net.Uri
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -47,6 +49,7 @@ fun Resultados(
     val minutosRestantes by perfilViewModel.minutosRestantes
     val segundosRestantes by perfilViewModel.segundosRestantes
 
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
 
     Column(
@@ -107,17 +110,61 @@ fun Resultados(
                 .padding(bottom = 16.dp)
         )
 
+        //Botón para el correo electrónico
         Button(
             onClick = {
-                navController.navigate("Email")
+                val asunto = "Log - $fechaHoraFormateada"
+                val cuerpo = buildString {
+                    appendLine(context.getString(R.string.alias_r, alias))
+                    appendLine(
+                        context.getString(
+                            R.string.dificultad_r,
+                            if (dificultad) context.getString(R.string.dificil) else context.getString(R.string.facil)
+                        )
+                    )
+                    appendLine(
+                        context.getString(
+                            R.string.temporizador_r,
+                            if (temporizador) context.getString(R.string.si) else context.getString(R.string.no)
+                        )
+                    )
+                    if (temporizador) {
+                        appendLine(
+                            context.getString(
+                                R.string.tiempo_introducido_r,
+                                minutosConfigurados,
+                                segundosConfigurados
+                            )
+                        )
+                        appendLine(
+                            context.getString(
+                                R.string.tiempo_restante_r,
+                                minutosRestantes,
+                                segundosRestantes
+                            )
+                        )
+                    }
+                }
+
+                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                    data = Uri.parse("mailto:$email")
+                    putExtra(Intent.EXTRA_SUBJECT, asunto)
+                    putExtra(Intent.EXTRA_TEXT, cuerpo)
+                }
+                try {
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
-        ){
-            Text(text = stringResource(R.string.enviar_email))
+        ) {
+            Text(stringResource(R.string.enviar_email))
         }
 
         Button(
             onClick = {
-                navController.navigate("Juego")
+                perfilViewModel.reiniciarTiempoRestante()
+                navController.navigate("Jugar")
             }
         ){
             Text(text = stringResource(R.string.nueva_partida))

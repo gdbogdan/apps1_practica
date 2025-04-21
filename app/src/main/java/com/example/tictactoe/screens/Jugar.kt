@@ -36,15 +36,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun Jugar(
     navController: NavController,
-    perfilViewModel: PerfilViewModel // Recibimos el PerfilViewModel directamente
+    perfilViewModel: PerfilViewModel
 ) {
-    val viewModel: JugarViewModel = viewModel()
-    val tablero by viewModel.tablero
-    val mostrarDialogo by viewModel.mostrarDialogoGanador
-    val mensajeGanador by viewModel.mensajeGanador
-    val turno by viewModel.turno
-    val ganador by viewModel.ganador
-    val juegoTerminado by viewModel.juegoTerminado
+    val jugarViewModel: JugarViewModel = viewModel()
+    val tablero by jugarViewModel.tablero
+    val mostrarDialogo by jugarViewModel.mostrarDialogoGanador
+    val mensajeGanador by jugarViewModel.mensajeGanador
+    val turno by jugarViewModel.turno
+    val ganador by jugarViewModel.ganador
+    val juegoTerminado by jugarViewModel.juegoTerminado
 
     // Accedemos a los valores del PerfilViewModel
     val dificultad by perfilViewModel.dificultad
@@ -66,7 +66,7 @@ fun Jugar(
                     tiempoTranscurridoSegundos.value++
                 }
                 if (!juegoTerminado && tiempoTranscurridoSegundos.value >= tiempoLimite && tiempoLimite > 0) {
-                    viewModel.finalizarJuegoPorTiempoAgotado()
+                    jugarViewModel.finalizarJuegoPorTiempoAgotado()
                 }
             }
         } else {
@@ -79,7 +79,7 @@ fun Jugar(
         AlertDialogGanador(
             mensaje = mensajeGanador,
             onContinuar = {
-                viewModel.reiniciarJuego()
+                jugarViewModel.reiniciarJuego()
                 tiempoTranscurridoSegundos.value = 0
                 navController.navigate("Resultados")
             },
@@ -100,7 +100,7 @@ fun Jugar(
             segundosLimite = segundos,
             temporizadorActivo = temporizadorActivo,
             onCasillaClick = { fila, columna ->
-                viewModel.jugarCasilla(fila, columna, dificultad)
+                jugarViewModel.jugarCasilla(fila, columna, dificultad)
             }
         )
     }
