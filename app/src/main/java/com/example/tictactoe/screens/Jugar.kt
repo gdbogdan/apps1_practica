@@ -1,5 +1,6 @@
 package com.example.tictactoe.screens
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -56,36 +58,51 @@ fun Jugar(
     val scope = rememberCoroutineScope()
     var temporizadorJob by remember { mutableStateOf<Job?>(null) }
 
+    val context = LocalContext.current
+
     LaunchedEffect(temporizadorActivo) {
         temporizadorJob?.cancel()
         if (temporizadorActivo) {
             val tiempoLimite = minutos * 60 + segundos
             temporizadorJob = scope.launch {
-                while (!juegoTerminado && tiempoTranscurridoSegundos.value < tiempoLimite) {
+                while (!juegoTerminado && tiempoTranscurridoSegundos.intValue < tiempoLimite) {
                     delay(1000)
-                    tiempoTranscurridoSegundos.value++
+                    tiempoTranscurridoSegundos.intValue++
                 }
-                if (!juegoTerminado && tiempoTranscurridoSegundos.value >= tiempoLimite && tiempoLimite > 0) {
+                if (!juegoTerminado && tiempoTranscurridoSegundos.intValue >= tiempoLimite && tiempoLimite > 0) {
                     jugarViewModel.finalizarJuegoPorTiempoAgotado()
                 }
             }
         } else {
-            tiempoTranscurridoSegundos.value = 0
+            tiempoTranscurridoSegundos.intValue = 0
         }
     }
 
-    if (mostrarDialogo || juegoTerminado || (temporizadorActivo && tiempoTranscurridoSegundos.value >= (minutos * 60 + segundos) && (minutos * 60 + segundos) > 0)) {
+    if (mostrarDialogo || juegoTerminado || (temporizadorActivo && tiempoTranscurridoSegundos.intValue >= (minutos * 60 + segundos) && (minutos * 60 + segundos) > 0)) {
         val tiempoTotalSegundos = minutos * 60 + segundos
+
+        // REPRODUCCIÓN DE SONIDO DIRECTA ANTES DEL ALERTDIALOG
+        LaunchedEffect(mensajeGanador) {
+            //Log.d("SONIDO_DIRECTO", "Mensaje ganador: $mensajeGanador")
+            when (mensajeGanador) {
+                "¡Has ganado!" -> MediaPlayer.create(context, R.raw.victory)
+                "¡Has perdido!" -> MediaPlayer.create(context, R.raw.defeat)
+                "¡Tiempo agotado! Has perdido." -> MediaPlayer.create(context, R.raw.defeat)
+                "¡Empate!" -> MediaPlayer.create(context, R.raw.tie)
+                else -> null
+            }?.start()
+        }
+
         AlertDialogGanador(
             mensaje = mensajeGanador,
             onContinuar = {
                 jugarViewModel.reiniciarJuego()
-                tiempoTranscurridoSegundos.value = 0
+                tiempoTranscurridoSegundos.intValue = 0
                 navController.navigate("Resultados")
             },
             perfilViewModel = perfilViewModel,
             tiempoTotalSegundos = tiempoTotalSegundos,
-            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.value
+            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.intValue
         )
     }
 
@@ -95,7 +112,7 @@ fun Jugar(
             turno = turno,
             ganador = ganador,
             juegoTerminado = juegoTerminado,
-            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.value,
+            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.intValue,
             minutosLimite = minutos,
             segundosLimite = segundos,
             temporizadorActivo = temporizadorActivo,

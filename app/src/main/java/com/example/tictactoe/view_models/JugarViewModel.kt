@@ -58,7 +58,7 @@ class JugarViewModel : ViewModel() {
 
     private fun moverIA(dificultad: Boolean) {
         CoroutineScope(Dispatchers.Default).launch {
-            delay(2000) // Esperar 2 segundos
+            delay(2000) // Esperar 2 segundos, para efecto visual de cambio de Turno de X o Turno de O
 
             val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
             movimiento?.let { (fila, columna) ->
