@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 class JugarViewModel : ViewModel() {
 
@@ -58,7 +59,7 @@ class JugarViewModel : ViewModel() {
 
     private fun moverIA(dificultad: Boolean) {
         CoroutineScope(Dispatchers.Default).launch {
-            delay(2000) // Esperar 2 segundos, para efecto visual de cambio de Turno de X o Turno de O
+            delay(1000) // Reducir la espera para una respuesta más ágil
 
             val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
             movimiento?.let { (fila, columna) ->
@@ -146,9 +147,42 @@ class JugarViewModel : ViewModel() {
         if (casillasVacias.isEmpty()) return null
 
         return if (dificultad) {
+            // 1. Intentar ganar
+            for ((fila, columna) in casillasVacias) {
+                val tableroTemporal = tablero.copyOf().map { it.copyOf() }.toTypedArray()
+                tableroTemporal[fila][columna] = Simbolo.O
+                if (comprobarGanador(tableroTemporal) == Simbolo.O) {
+                    return Pair(fila, columna)
+                }
+            }
+
+            // 2. Bloquear al jugador
+            for ((fila, columna) in casillasVacias) {
+                val tableroTemporal = tablero.copyOf().map { it.copyOf() }.toTypedArray()
+                tableroTemporal[fila][columna] = Simbolo.X
+                if (comprobarGanador(tableroTemporal) == Simbolo.X) {
+                    return Pair(fila, columna)
+                }
+            }
+
+            // 3. Intentar tomar el centro si está libre
+            if (tablero[1][1] == Simbolo.Vacio) {
+                return Pair(1, 1)
+            }
+
+            // 4. Intentar tomar esquinas si están libres
+            val esquinasLibres = casillasVacias.filter { (fila, columna) ->
+                (fila == 0 && columna == 0) || (fila == 0 && columna == 2) ||
+                        (fila == 2 && columna == 0) || (fila == 2 && columna == 2)
+            }
+            if (esquinasLibres.isNotEmpty()) {
+                return esquinasLibres.random()
+            }
+
+            // 5. Si no hay movimientos estratégicos, elegir una casilla vacía al azar
             casillasVacias.random()
         } else {
-            casillasVacias.first()
+            casillasVacias.random()
         }
     }
 }
