@@ -160,7 +160,6 @@ fun PerfilPortrait(
         }
         Spacer(modifier = Modifier.padding(16.dp))
 
-        // Botones Editar/Guardar e Inicio
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -221,7 +220,7 @@ fun PerfilLandscape(
     perfilViewModel: PerfilViewModel
 ) {
     val context = LocalContext.current
-
+    val toastMsg = stringResource(R.string.toast_config)
     val isEditing by perfilViewModel.isEditing
     val alias by perfilViewModel.alias
     val dificultad by perfilViewModel.dificultad
@@ -235,7 +234,6 @@ fun PerfilLandscape(
             .padding(8.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        // Fila 1: Alias, Dificultad y Temporizador (INTACTA)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
@@ -290,11 +288,10 @@ fun PerfilLandscape(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Fila 2: Minutos/Segundos (si temporizador) y Botones
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically // Alineación vertical centrada
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // Contenedor para Minutos y Segundos
             if (temporizador) {
@@ -335,11 +332,10 @@ fun PerfilLandscape(
                 }
             } else {
                 Column(modifier = Modifier.weight(0.5f)) {
-                    Spacer(modifier = Modifier.height(0.dp)) // Espacio si no hay temporizador
+                    Spacer(modifier = Modifier.height(0.dp))
                 }
             }
 
-            // Contenedor para los Botones
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier.weight(0.5f)
@@ -367,6 +363,7 @@ fun PerfilLandscape(
                 } else {
                     Button(
                         onClick = {
+                            Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
                             perfilViewModel.marcarPrimerJuegoComoJugado()
                             perfilViewModel.actualizarAlias(alias)
                             perfilViewModel.actualizarDificultad(dificultad)
