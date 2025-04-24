@@ -28,7 +28,6 @@ import com.example.tictactoe.view_models.PerfilViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import android.net.Uri
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -146,13 +145,14 @@ fun Resultados(
                     }
                 }
 
-                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                    data = Uri.parse("mailto:$email")
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
                     putExtra(Intent.EXTRA_SUBJECT, asunto)
                     putExtra(Intent.EXTRA_TEXT, cuerpo)
                 }
                 try {
-                    context.startActivity(intent)
+                    context.startActivity(Intent.createChooser(intent, "Enviar email..."))
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
