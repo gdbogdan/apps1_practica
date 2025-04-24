@@ -2,8 +2,9 @@
     <!-- <string name=""></string> -->
     <string name="app_name">TicTacToe</string>
     <string name="instrucciones">En el juego del Tic Tac Toe o Tres en Raya, el objetivo principal es conseguir tres símbolos iguales en línea (pudiendo ser horizontal, vertical o diagonal). Por norma general, en esta versión empezarán las "X".</string>
-    <string name="instrucciones_dificultad">Existen 2 dificultades en el juego, en la dificultad "Fácil" el juego ocupará la primera celda disponible. En cambio, en la dificultad "Difícil" aquí será un valor aleatorio, pudiendo ser que te dificulte la jugabilidad y el ganar la partida.</string>
-    <string name="instrucciones_perfil">El icono del engranaje que aparece arriba a la derecha, es el botón de tu perfil, pudiendo modificar desde allí, tu nombre, dificultad y temporizador.</string>
+    <string name="instrucciones_dificultad">Existen 2 dificultades en el juego, en la dificultad "Fácil" el juego ocupará la primera celda aleatoria disponible. En cambio, en la dificultad "Difícil" aquí el juego hará todo lo posible por empatar o ganarte, aprovechando la IA y simulando ser un jugador real.</string>
+    <string name="instrucciones_perfil">El icono del engranaje que aparece arriba a la derecha, es el botón de tu Perfil, la primera vez que juegues, la aplicación te llevará hasta aquí, teniendolo que EDITAR para poder jugar. Desde aquí podrás modificar tu nombre, dificultad y temporizador.</string>
+    <string name="instrucciones_navegacion">Podrás navegar fácilmente a cualquier parte y momento de la aplicación, desde el menú de navegación inferior o desde el engranaje en la parte superior derecha.</string>
 
     <string name="alias">Alias del Jugador</string>
     <string name="alias_r">Alias: %1$s</string>
