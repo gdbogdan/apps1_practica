@@ -60,7 +60,8 @@ fun PerfilPortrait(
     perfilViewModel: PerfilViewModel
 ) {
     val context = LocalContext.current
-    val toastMsg = stringResource(R.string.toast_config)
+    val toastMsgConfigurada = stringResource(R.string.toast_config)
+    val toastMsgTiempoCero = stringResource(R.string.toast_tiempo_cero)
     val scrollState = rememberScrollState()
 
     val isEditing by perfilViewModel.isEditing
@@ -167,12 +168,18 @@ fun PerfilPortrait(
             if (isEditing) {
                 Button(
                     onClick = {
-                        Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
-                        perfilViewModel.marcarPrimerJuegoComoJugado()
-                        perfilViewModel.actualizarAlias(alias)
-                        perfilViewModel.actualizarDificultad(dificultad)
-                        perfilViewModel.actualizarTemporizador(temporizador)
-                        perfilViewModel.setEditing(false)
+                        if (temporizador && minutos == 0 && segundos == 0) {
+                            Toast.makeText(context, toastMsgTiempoCero, Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, toastMsgConfigurada, Toast.LENGTH_SHORT).show()
+                            perfilViewModel.marcarPrimerJuegoComoJugado()
+                            perfilViewModel.actualizarAlias(alias)
+                            perfilViewModel.actualizarDificultad(dificultad)
+                            perfilViewModel.actualizarTemporizador(temporizador)
+                            perfilViewModel.actualizarMinutos(minutos)
+                            perfilViewModel.actualizarSegundos(segundos)
+                            perfilViewModel.setEditing(false)
+                        }
                     }
                 ) {
                     Text(stringResource(R.string.guardar))
@@ -220,7 +227,8 @@ fun PerfilLandscape(
     perfilViewModel: PerfilViewModel
 ) {
     val context = LocalContext.current
-    val toastMsg = stringResource(R.string.toast_config)
+    val toastMsgConfigurada = stringResource(R.string.toast_config)
+    val toastMsgTiempoCero = stringResource(R.string.toast_tiempo_cero)
     val isEditing by perfilViewModel.isEditing
     val alias by perfilViewModel.alias
     val dificultad by perfilViewModel.dificultad
@@ -363,14 +371,18 @@ fun PerfilLandscape(
                 } else {
                     Button(
                         onClick = {
-                            Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
-                            perfilViewModel.marcarPrimerJuegoComoJugado()
-                            perfilViewModel.actualizarAlias(alias)
-                            perfilViewModel.actualizarDificultad(dificultad)
-                            perfilViewModel.actualizarTemporizador(temporizador)
-                            perfilViewModel.actualizarMinutos(minutos)
-                            perfilViewModel.actualizarSegundos(segundos)
-                            perfilViewModel.setEditing(false)
+                            if (temporizador && minutos == 0 && segundos == 0) {
+                                Toast.makeText(context, toastMsgTiempoCero, Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, toastMsgConfigurada, Toast.LENGTH_SHORT).show()
+                                perfilViewModel.marcarPrimerJuegoComoJugado()
+                                perfilViewModel.actualizarAlias(alias)
+                                perfilViewModel.actualizarDificultad(dificultad)
+                                perfilViewModel.actualizarTemporizador(temporizador)
+                                perfilViewModel.actualizarMinutos(minutos)
+                                perfilViewModel.actualizarSegundos(segundos)
+                                perfilViewModel.setEditing(false)
+                            }
                         }
                     ) {
                         Text(stringResource(R.string.guardar))
