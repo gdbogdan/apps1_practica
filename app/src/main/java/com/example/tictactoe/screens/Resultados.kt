@@ -202,7 +202,7 @@ fun ResultadosLandscape(
     val dificultad by perfilViewModel.dificultad
     val temporizador by perfilViewModel.temporizador
     val minutosConfigurados by perfilViewModel.minutos
-    val segundosConfigurados by perfilViewModel.segundosRestantes
+    val segundosConfigurados by perfilViewModel.segundos
     val minutosRestantes by perfilViewModel.minutosRestantes
     val segundosRestantes by perfilViewModel.segundosRestantes
 
