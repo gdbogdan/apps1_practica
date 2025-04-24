@@ -49,5 +49,6 @@
     <string name="tiempo_introducido_r">Tiempo Introducido: %1$02d:%2$02d</string>
     <string name="tiempo_restante_r">Tiempo Restante: %1$02d:%2$02d</string>
     <string name="toast_tiempo_cero">El tiempo máximo no puede ser 00:00.</string>
+    <string name="resultados">Resultados de la partida:</string>
 
 </resources>
