@@ -1,4 +1,4 @@
-package com.example.tictactoe.view_models
+package com.example.tictactoe.perfil
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf

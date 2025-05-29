@@ -30,7 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 import com.example.tictactoe.view_models.JugarViewModel
-import com.example.tictactoe.view_models.PerfilViewModel
+import com.example.tictactoe.perfil.PerfilViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

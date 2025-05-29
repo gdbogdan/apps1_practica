@@ -29,13 +29,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.tictactoe.screens.Inicio
-import com.example.tictactoe.screens.Instrucciones
+import com.example.tictactoe.inicio.Inicio
+import com.example.tictactoe.instrucciones.Instrucciones
 import com.example.tictactoe.screens.Jugar
 import com.example.tictactoe.screens.Partidas
-import com.example.tictactoe.screens.Perfil
-import com.example.tictactoe.screens.Resultados
-import com.example.tictactoe.view_models.PerfilViewModel
+import com.example.tictactoe.perfil.Perfil
+import com.example.tictactoe.resultados.Resultados
+import com.example.tictactoe.perfil.PerfilViewModel
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
