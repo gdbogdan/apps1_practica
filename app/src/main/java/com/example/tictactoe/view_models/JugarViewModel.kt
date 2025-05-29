@@ -3,6 +3,7 @@ package com.example.tictactoe.view_models
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.tictactoe.screens.Simbolo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +59,7 @@ class JugarViewModel : ViewModel() {
     }
 
     private fun moverIA(dificultad: Boolean) {
-        CoroutineScope(Dispatchers.Default).launch {
+        viewModelScope.launch {
             delay(1000) // Reducir la espera para una respuesta más ágil
 
             val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
