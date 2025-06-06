@@ -1,6 +1,8 @@
 package com.example.tictactoe.screens
 
+import android.app.Activity
 import android.media.MediaPlayer
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +35,7 @@ import com.example.tictactoe.resultados.ResultadoJuego
 import com.example.tictactoe.view_models.JugarViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -41,7 +44,6 @@ fun Jugar(
     perfilViewModel: PerfilViewModel,
     jugarViewModel: JugarViewModel
 ) {
-    val tablero by jugarViewModel.tablero
     val mostrarDialogo by jugarViewModel.mostrarDialogoGanador
     val resultado by jugarViewModel.resultado
     val mensajeGanador = when (resultado) {
@@ -55,7 +57,6 @@ fun Jugar(
     val ganador by jugarViewModel.ganador
     val juegoTerminado by jugarViewModel.juegoTerminado
 
-    // Accedemos a los valores del PerfilViewModel
     val dificultad by perfilViewModel.dificultad
     val temporizadorActivo by perfilViewModel.temporizador
     val minutos by perfilViewModel.minutos
@@ -85,10 +86,21 @@ fun Jugar(
         }
     }
 
+    LaunchedEffect(Unit) {
+        jugarViewModel.feedbackMessage.collectLatest { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        jugarViewModel.closeAppEvent.collectLatest {
+            (context as? Activity)?.finish()
+        }
+    }
+
     if (mostrarDialogo || juegoTerminado || (temporizadorActivo && tiempoTranscurridoSegundos.intValue >= (minutos * 60 + segundos) && (minutos * 60 + segundos) > 0)) {
         val tiempoTotalSegundos = minutos * 60 + segundos
 
-        // REPRODUCCIÓN DE SONIDO DIRECTA ANTES DEL ALERTDIALOG
         LaunchedEffect(resultado) {
             //Log.d("SONIDO_DIRECTO", "Mensaje ganador: $mensajeGanador")
             when (mensajeGanador) {
@@ -115,7 +127,7 @@ fun Jugar(
 
     if (!mostrarDialogo) {
         JugarUI(
-            tablero = tablero,
+            tablero = jugarViewModel.tablero,
             turno = turno,
             ganador = ganador,
             juegoTerminado = juegoTerminado,
@@ -124,7 +136,9 @@ fun Jugar(
             segundosLimite = segundos,
             temporizadorActivo = temporizadorActivo,
             onCasillaClick = { fila, columna ->
-                jugarViewModel.jugarCasilla(fila, columna, dificultad)
+                scope.launch {
+                    jugarViewModel.onCasillaClick(fila, columna, context, dificultad)
+                }
             }
         )
     }

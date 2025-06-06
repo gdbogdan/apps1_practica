@@ -52,6 +52,7 @@ fun ResultadosLandscape(
     val segundosConfigurados by perfilViewModel.segundos
     val minutosRestantes by perfilViewModel.minutosRestantes
     val segundosRestantes by perfilViewModel.segundosRestantes
+    val casillasRestantes by jugarViewModel.casillasRestantes
 
     val context = LocalContext.current
     val email by perfilViewModel.email
@@ -89,9 +90,13 @@ fun ResultadosLandscape(
                 modifier = Modifier.weight(0.45f)
             ) {
                 Text(text = fechaHoraFormateada, fontSize = 14.sp)
-                Text(text = stringResource(R.string.alias_r, alias), fontSize = 14.sp)
-
                 Text(text = mensajeVictoria, fontSize = 14.sp)
+                Text(text = stringResource(R.string.alias_r, alias), fontSize = 14.sp)
+                Text(
+                    text = stringResource(
+                        R.string.casillas_restantes_r, casillasRestantes
+                    )
+                )
                 Text(
                     text = stringResource(
                         R.string.dificultad_r,
@@ -106,20 +111,15 @@ fun ResultadosLandscape(
                     ),
                     fontSize = 14.sp
                 )
-                if (temporizador) {
+
+                if (temporizador) { //No especifico que el tiempo son en minutos, pues al configurar el Perfil, ya está marcado Minutos y Segundos
                     Text(
                         text = stringResource(
-                            R.string.tiempo_introducido_r,
+                            R.string.tiempo_juego_resumen,
+                            minutosRestantes,
+                            segundosRestantes,
                             minutosConfigurados,
                             segundosConfigurados
-                        ),
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.tiempo_restante_r,
-                            minutosRestantes,
-                            segundosRestantes
                         ),
                         fontSize = 14.sp
                     )
@@ -160,6 +160,7 @@ fun ResultadosLandscape(
                                 segundosConfigurados = segundosConfigurados,
                                 minutosRestantes = minutosRestantes,
                                 segundosRestantes = segundosRestantes,
+                                casillasRestantes = casillasRestantes,
                                 email = email
                             )
                         },

@@ -12,12 +12,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Casilla(simbolo: Simbolo, onClick: () -> Unit) {
+fun Casilla(
+    simbolo: Simbolo,
+    fila: Int,
+    columna: Int,
+    onCasillaClick: (fila: Int, columna: Int) -> Unit
+) {
     Box(
         modifier = Modifier
             .size(50.dp) //MODIFICAR PARA QUE SE ADAPTE A LA PANTALLA
             .border(1.dp, Color.Black)
-            .clickable { if (simbolo == Simbolo.Vacio) onClick() },
+            .clickable { onCasillaClick(fila, columna) },
         contentAlignment = Alignment.Center
     ) {
         Text(

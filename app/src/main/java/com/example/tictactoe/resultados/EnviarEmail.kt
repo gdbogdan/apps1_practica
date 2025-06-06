@@ -15,12 +15,14 @@ fun enviarEmail(
     segundosConfigurados: Int = 0,
     minutosRestantes: Int = 0,
     segundosRestantes: Int = 0,
+    casillasRestantes: Int,
     email: String
 ) {
     val asunto = "Log - $fechaHoraFormateada"
     val cuerpo = buildString {
         appendLine(tipoVictoria)
         appendLine(context.getString(R.string.alias_r, alias))
+        appendLine(context.getString(R.string.casillas_restantes_r, casillasRestantes))
         appendLine(
             context.getString(
                 R.string.dificultad_r,
@@ -33,19 +35,14 @@ fun enviarEmail(
                 if (temporizador) context.getString(R.string.si) else context.getString(R.string.no)
             )
         )
-        if (temporizador) {
+        if (temporizador) { //No especifico que el tiempo son en minutos, pues al configurar el Perfil, ya está marcado Minutos y Segundos
             appendLine(
                 context.getString(
-                    R.string.tiempo_introducido_r,
+                    R.string.tiempo_juego_resumen,
+                    minutosRestantes,
+                    segundosRestantes,
                     minutosConfigurados,
                     segundosConfigurados
-                )
-            )
-            appendLine(
-                context.getString(
-                    R.string.tiempo_restante_r,
-                    minutosRestantes,
-                    segundosRestantes
                 )
             )
         }

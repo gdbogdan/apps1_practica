@@ -46,10 +46,11 @@
     <string name="zero">00</string>
     <string name="tiempo_introducido_r">Tiempo Introducido: %1$02d:%2$02d</string>
     <string name="tiempo_restante_r">Tiempo Restante: %1$02d:%2$02d</string>
+    <string name="tiempo_juego_resumen">Duracion de la partida: %02d:%02d de %02d:%02d</string>
     <string name="toast_tiempo_cero">El tiempo máximo no puede ser 00:00.</string>
     <string name="resultados">Resultados de la partida:</string>
     <string name="toast_alias_vacio">El alías no puede estar vacío.</string>
-
+    <string name="casillas_restantes_r">Casillas restantes: %d</string>
 
     <string name="has_ganado">¡Has ganado!</string>
     <string name="has_perdido">¡Has perdido!</string>
@@ -60,4 +61,7 @@
     <string name="victoria_diagonal1">¡Has ganado! Tres en raya en la diagonal principal</string>
     <string name="victoria_diagonal2">¡Has ganado! Tres en raya en la diagonal secundaria</string>
     <string name="sin_victoria">Sin un claro ganador</string>
+    <string name="primer_aviso_casilla_ocupada">¡Celda ocupada! Primer aviso.</string>
+    <string name="ultimo_aviso_casilla_ocupada">¡Está ocupada! Último aviso.</string>
+    <string name="te_lo_avise">¡Te lo avisé!</string>
 </resources>

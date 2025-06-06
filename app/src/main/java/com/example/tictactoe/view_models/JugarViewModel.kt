@@ -12,11 +12,13 @@ import com.example.tictactoe.screens.TipoVictoria
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.tictactoe.R
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 class JugarViewModel : ViewModel() {
 
-    private val _tablero = mutableStateOf(Array(3) { Array(3) { Simbolo.Vacio } })
-    val tablero: State<Array<Array<Simbolo>>> = _tablero
+    private val _tablero = mutableStateOf(List(3) { List(3) { Simbolo.Vacio } })
+    val tablero: State<List<List<Simbolo>>> = _tablero
 
     private val _turno = mutableStateOf(Simbolo.X)
     val turno: State<Simbolo> = _turno
@@ -35,6 +37,44 @@ class JugarViewModel : ViewModel() {
 
     private val _tipoVictoria = mutableStateOf<TipoVictoria?>(null)
     val tipoVictoria: State<TipoVictoria?> = _tipoVictoria
+
+    // Contador de toques en casillas ocupadas: Map<Pair<fila, columna>, contador>
+    private val _toquesCasillaOcupada = mutableStateOf(mutableMapOf<Pair<Int, Int>, Int>())
+
+    // SharedFlow para enviar eventos de feedback a la UI (mensajes)
+    private val _feedbackMessage = MutableSharedFlow<String>()
+    val feedbackMessage: SharedFlow<String> = _feedbackMessage
+
+    // SharedFlow para enviar el evento de cerrar la app
+    private val _closeAppEvent = MutableSharedFlow<Unit>()
+    val closeAppEvent: SharedFlow<Unit> = _closeAppEvent
+
+    private val _casillasRestantes = mutableStateOf(9)
+    val casillasRestantes: State<Int> = _casillasRestantes
+
+    suspend fun onCasillaClick(fila: Int, columna: Int, context: Context, dificultad: Boolean): Boolean {
+        val simboloActual = _tablero.value[fila][columna]
+        val casillaKey = Pair(fila, columna)
+
+        if (simboloActual == Simbolo.Vacio) {
+            _toquesCasillaOcupada.value.remove(casillaKey)
+            jugarCasilla(fila, columna, dificultad)
+            return true
+        } else {
+            val contador = _toquesCasillaOcupada.value.getOrDefault(casillaKey, 0) + 1
+            _toquesCasillaOcupada.value[casillaKey] = contador
+
+            when (contador) {
+                1 -> _feedbackMessage.emit(context.getString(R.string.primer_aviso_casilla_ocupada))
+                2 -> _feedbackMessage.emit(context.getString(R.string.ultimo_aviso_casilla_ocupada))
+                else -> {
+                    _feedbackMessage.emit(context.getString(R.string.te_lo_avise))
+                    _closeAppEvent.emit(Unit)
+                }
+            }
+            return false
+        }
+    }
 
     fun obtenerMensajeVictoriaFormateado(context: Context): String {
         return when (_resultado.value) {
@@ -59,21 +99,29 @@ class JugarViewModel : ViewModel() {
     }
 
     fun reiniciarJuego() {
-        _tablero.value = Array(3) { Array(3) { Simbolo.Vacio } }
+        // Asegúrate de que _tablero también se reinicie si descomentas esto
+        _tablero.value = List(3) { List(3) { Simbolo.Vacio } } // Reinicia el tablero
         _turno.value = Simbolo.X
         _ganador.value = null
         _tipoVictoria.value = null
         _juegoTerminado.value = false
         _mostrarDialogoGanador.value = false
         _resultado.value = null
+        _toquesCasillaOcupada.value.clear()
+        _casillasRestantes.value = 9 // <<-- AÑADIDO: Reinicia el contador de casillas restantes
     }
 
     fun jugarCasilla(fila: Int, columna: Int, dificultad: Boolean) {
         if (_ganador.value != null || _juegoTerminado.value || _tablero.value[fila][columna] != Simbolo.Vacio) return
 
-        val nuevoTablero = _tablero.value.copyOf().map { it.copyOf() }.toTypedArray()
-        nuevoTablero[fila][columna] = _turno.value
+        val nuevoTablero = _tablero.value.toMutableList().apply {
+            this[fila] = this[fila].toMutableList().apply {
+                this[columna] = _turno.value
+            }.toList()
+        }.toList()
+
         _tablero.value = nuevoTablero
+        _casillasRestantes.value--
 
         val resultadoDetallado = comprobarGanadorDetallado(nuevoTablero)
         val posibleGanador = resultadoDetallado?.simbolo
@@ -90,13 +138,18 @@ class JugarViewModel : ViewModel() {
 
     private fun moverIA(dificultad: Boolean) {
         viewModelScope.launch {
-            delay(1000) // Espera de 1 segundo
+            delay(1000)
 
             val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
             movimiento?.let { (fila, columna) ->
-                val nuevoTablero = _tablero.value.copyOf().map { it.copyOf() }.toTypedArray()
-                nuevoTablero[fila][columna] = Simbolo.O
+                val nuevoTablero = _tablero.value.toMutableList().apply {
+                    this[fila] = this[fila].toMutableList().apply {
+                        this[columna] = Simbolo.O
+                    }.toList()
+                }.toList()
+
                 _tablero.value = nuevoTablero
+                _casillasRestantes.value--
 
                 val resultadoDetallado = comprobarGanadorDetallado(nuevoTablero)
                 val posibleGanador = resultadoDetallado?.simbolo
@@ -109,7 +162,6 @@ class JugarViewModel : ViewModel() {
             }
         }
     }
-
 
     private fun finalizarJuego(resultadoDetallado: ResultadoDetallado) {
         _ganador.value = resultadoDetallado.simbolo
@@ -124,7 +176,6 @@ class JugarViewModel : ViewModel() {
         _mostrarDialogoGanador.value = true
     }
 
-
     fun finalizarJuegoPorTiempoAgotado() {
         _ganador.value = Simbolo.Vacio
         _tipoVictoria.value = null
@@ -133,8 +184,8 @@ class JugarViewModel : ViewModel() {
         _mostrarDialogoGanador.value = true
     }
 
-    private fun comprobarGanadorDetallado(tablero: Array<Array<Simbolo>>): ResultadoDetallado? {
-        // Comprobar filas
+    private fun comprobarGanadorDetallado(tablero: List<List<Simbolo>>): ResultadoDetallado? {
+        // ... (Tu código para comprobar ganador)
         for (i in 0..2) {
             if (tablero[i][0] != Simbolo.Vacio &&
                 tablero[i][0] == tablero[i][1] &&
@@ -143,7 +194,6 @@ class JugarViewModel : ViewModel() {
             }
         }
 
-        // Comprobar columnas
         for (j in 0..2) {
             if (tablero[0][j] != Simbolo.Vacio &&
                 tablero[0][j] == tablero[1][j] &&
@@ -152,14 +202,12 @@ class JugarViewModel : ViewModel() {
             }
         }
 
-        // Diagonal principal
         if (tablero[0][0] != Simbolo.Vacio &&
             tablero[0][0] == tablero[1][1] &&
             tablero[1][1] == tablero[2][2]) {
             return ResultadoDetallado(tablero[0][0], TipoVictoria.DIAGONAL1)
         }
 
-        // Diagonal secundaria
         if (tablero[0][2] != Simbolo.Vacio &&
             tablero[0][2] == tablero[1][1] &&
             tablero[1][1] == tablero[2][0]) {
@@ -174,8 +222,7 @@ class JugarViewModel : ViewModel() {
         return null
     }
 
-
-    private fun realizarMovimientoIA(tablero: Array<Array<Simbolo>>, dificultad: Boolean): Pair<Int, Int>? {
+    private fun realizarMovimientoIA(tablero: List<List<Simbolo>>, dificultad: Boolean): Pair<Int, Int>? {
         val casillasVacias = mutableListOf<Pair<Int, Int>>()
         for (fila in tablero.indices) {
             for (columna in tablero[fila].indices) {
@@ -188,30 +235,32 @@ class JugarViewModel : ViewModel() {
         if (casillasVacias.isEmpty()) return null
 
         return if (dificultad) {
-            // 1. Intentar ganar
             for ((fila, columna) in casillasVacias) {
-                val tableroTemporal = tablero.copyOf().map { it.copyOf() }.toTypedArray()
-                tableroTemporal[fila][columna] = Simbolo.O
+                val tableroTemporal = tablero.toMutableList().apply {
+                    this[fila] = this[fila].toMutableList().apply {
+                        this[columna] = Simbolo.O
+                    }.toList()
+                }.toList()
                 val resultado = comprobarGanadorDetallado(tableroTemporal)
                 if (resultado?.simbolo == Simbolo.O) {
                     return Pair(fila, columna)
                 }
             }
 
-            // 2. Bloquear al jugador
             for ((fila, columna) in casillasVacias) {
-                val tableroTemporal = tablero.copyOf().map { it.copyOf() }.toTypedArray()
-                tableroTemporal[fila][columna] = Simbolo.X
+                val tableroTemporal = tablero.toMutableList().apply {
+                    this[fila] = this[fila].toMutableList().apply {
+                        this[columna] = Simbolo.X
+                    }.toList()
+                }.toList()
                 val resultado = comprobarGanadorDetallado(tableroTemporal)
                 if (resultado?.simbolo == Simbolo.X) {
                     return Pair(fila, columna)
                 }
             }
 
-            // 3. Centro
             if (tablero[1][1] == Simbolo.Vacio) return Pair(1, 1)
 
-            // 4. Esquinas
             val esquinasLibres = casillasVacias.filter { (fila, columna) ->
                 (fila == 0 && columna == 0) || (fila == 0 && columna == 2) ||
                         (fila == 2 && columna == 0) || (fila == 2 && columna == 2)
@@ -220,11 +269,9 @@ class JugarViewModel : ViewModel() {
                 return esquinasLibres.random()
             }
 
-            // 5. Cualquiera
             casillasVacias.random()
         } else {
             casillasVacias.random()
         }
     }
-
 }

@@ -3,14 +3,26 @@ package com.example.tictactoe.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 
 @Composable
-fun Tablero(tablero: Array<Array<Simbolo>>, onCasillaClick: (Int, Int) -> Unit) {
+fun Tablero(
+    tablero: State<List<List<Simbolo>>>,
+    onCasillaClick: (fila: Int, columna: Int) -> Unit
+) {
+    val currentTablero by tablero
+
     Column {
-        for (fila in tablero.indices) {
+        currentTablero.forEachIndexed { filaIndex, row ->
             Row {
-                for (columna in tablero[fila].indices) {
-                    Casilla(simbolo = tablero[fila][columna], onClick = { onCasillaClick(fila, columna) })
+                row.forEachIndexed { colIndex, simbolo ->
+                    Casilla(
+                        simbolo = simbolo,
+                        fila = filaIndex,
+                        columna = colIndex,
+                        onCasillaClick = onCasillaClick
+                    )
                 }
             }
         }

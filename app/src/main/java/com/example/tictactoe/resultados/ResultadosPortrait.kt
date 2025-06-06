@@ -48,6 +48,7 @@ fun ResultadosPortrait(
     val segundosConfigurados by perfilViewModel.segundos
     val minutosRestantes by perfilViewModel.minutosRestantes
     val segundosRestantes by perfilViewModel.segundosRestantes
+    val casillasRestantes by jugarViewModel.casillasRestantes
 
     val context = LocalContext.current
     val email by perfilViewModel.email
@@ -66,9 +67,13 @@ fun ResultadosPortrait(
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(text = fechaHoraFormateada)
-        Text(text = stringResource(R.string.alias_r, alias))
-
         Text(text = mensajeVictoria)
+        Text(text = stringResource(R.string.alias_r, alias))
+        Text(
+            text = stringResource(
+                R.string.casillas_restantes_r, casillasRestantes
+            )
+        )
         Text(
             text = stringResource(
                 R.string.dificultad_r,
@@ -81,22 +86,19 @@ fun ResultadosPortrait(
                 if (temporizador) stringResource(R.string.si) else stringResource(R.string.no)
             )
         )
-        if (temporizador) {
+        if (temporizador) { //No especifico que el tiempo son en minutos, pues al configurar el Perfil, ya está marcado Minutos y Segundos
             Text(
                 text = stringResource(
-                    R.string.tiempo_introducido_r,
+                    R.string.tiempo_juego_resumen,
+                    minutosRestantes,
+                    segundosRestantes,
                     minutosConfigurados,
                     segundosConfigurados
-                )
-            )
-            Text(
-                text = stringResource(
-                    R.string.tiempo_restante_r,
-                    minutosRestantes,
-                    segundosRestantes
-                )
+                ),
+                fontSize = 14.sp
             )
         }
+
         OutlinedTextField(
             value = email,
             onValueChange = { newValue -> perfilViewModel.actualizarEmail(newValue) },
@@ -116,6 +118,7 @@ fun ResultadosPortrait(
                     segundosConfigurados = segundosConfigurados,
                     minutosRestantes = minutosRestantes,
                     segundosRestantes = segundosRestantes,
+                    casillasRestantes = casillasRestantes,
                     email = email
                 )
             }, modifier = Modifier.fillMaxWidth()) {
