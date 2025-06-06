@@ -36,9 +36,10 @@ import com.example.tictactoe.screens.Partidas
 import com.example.tictactoe.perfil.Perfil
 import com.example.tictactoe.resultados.Resultados
 import com.example.tictactoe.perfil.PerfilViewModel
+import com.example.tictactoe.view_models.JugarViewModel
 
 class MainActivity : ComponentActivity() {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedGetBackStackEntry")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -66,9 +67,11 @@ class MainActivity : ComponentActivity() {
                             Instrucciones(navController)
                         }
                         composable ("Jugar") {
+                            val jugarViewModel: JugarViewModel = viewModel()
                             Jugar(
                                 navController = navController,
-                                perfilViewModel = perfilViewModel
+                                perfilViewModel = perfilViewModel,
+                                jugarViewModel = jugarViewModel
                             )
                         }
                         composable ("Perfil"){
@@ -81,9 +84,14 @@ class MainActivity : ComponentActivity() {
                             Partidas(navController)
                         }
                         composable("Resultados") {
+                            val jugarViewModel: JugarViewModel = viewModel(
+                                navController.getBackStackEntry("Jugar")
+                            )
+
                             Resultados(
                                 navController = navController,
-                                perfilViewModel = perfilViewModel
+                                perfilViewModel = perfilViewModel,
+                                jugarViewModel = jugarViewModel
                             )
                         }
                     }

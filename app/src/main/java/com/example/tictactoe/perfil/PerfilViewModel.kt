@@ -31,6 +31,13 @@ class PerfilViewModel : ViewModel() {
     private val _segundosRestantes = mutableIntStateOf(0)
     val segundosRestantes: State<Int> = _segundosRestantes
 
+    private val _email = mutableStateOf("")
+    val email: State<String> = _email
+
+    fun actualizarEmail(nuevoEmail: String) {
+        _email.value = nuevoEmail
+    }
+
     private val _primerJuego = mutableStateOf(true)
     val primerJuego: State<Boolean> = _primerJuego
 

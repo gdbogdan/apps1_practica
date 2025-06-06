@@ -2,13 +2,13 @@ package com.example.tictactoe.resultados
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -16,9 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 import com.example.tictactoe.perfil.PerfilViewModel
+import com.example.tictactoe.view_models.JugarViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -38,7 +37,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ResultadosLandscape(
     navController: NavController,
-    perfilViewModel: PerfilViewModel
+    perfilViewModel: PerfilViewModel,
+    jugarViewModel: JugarViewModel
 ) {
     val madridZoneId = ZoneId.of("Europe/Madrid")
     val fechaHoraActual = remember { LocalDateTime.now(madridZoneId) }
@@ -54,13 +54,16 @@ fun ResultadosLandscape(
     val segundosRestantes by perfilViewModel.segundosRestantes
 
     val context = LocalContext.current
-    var email by remember { mutableStateOf("") }
+    val email by perfilViewModel.email
+    val mensajeVictoria = jugarViewModel.obtenerMensajeVictoriaFormateado(context)
+
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 8.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
         Text(
             text = stringResource(R.string.resultados),
@@ -70,32 +73,38 @@ fun ResultadosLandscape(
                 .padding(bottom = 8.dp)
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.Start,
+                .padding(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.Top
         ) {
-            // Columna 1: Datos de la partida (más ancha)
+            // Columna 1: Datos de la partida
             Column(
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.weight(0.3f)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.weight(0.45f)
             ) {
-                Text(text = fechaHoraFormateada)
-                Text(text = stringResource(R.string.alias_r, alias))
+                Text(text = fechaHoraFormateada, fontSize = 14.sp)
+                Text(text = stringResource(R.string.alias_r, alias), fontSize = 14.sp)
+
+                Text(text = mensajeVictoria, fontSize = 14.sp)
                 Text(
                     text = stringResource(
                         R.string.dificultad_r,
                         if (dificultad) stringResource(R.string.dificil) else stringResource(R.string.facil)
-                    )
+                    ),
+                    fontSize = 14.sp
                 )
                 Text(
                     text = stringResource(
                         R.string.temporizador_r,
                         if (temporizador) stringResource(R.string.si) else stringResource(R.string.no)
-                    )
+                    ),
+                    fontSize = 14.sp
                 )
                 if (temporizador) {
                     Text(
@@ -103,92 +112,65 @@ fun ResultadosLandscape(
                             R.string.tiempo_introducido_r,
                             minutosConfigurados,
                             segundosConfigurados
-                        )
+                        ),
+                        fontSize = 14.sp
                     )
                     Text(
                         text = stringResource(
                             R.string.tiempo_restante_r,
                             minutosRestantes,
                             segundosRestantes
-                        )
+                        ),
+                        fontSize = 14.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(12.dp)) // menos separación entre columnas
+            Spacer(modifier = Modifier.width(12.dp))
 
-            // Columna 2: Email y Botones (más estrecha)
+            // Columna 2: Email y Botones
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.weight(0.6f)
-            ) {
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.weight(0.55f) ) {
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
-                    label = { Text(stringResource(R.string.email)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    onValueChange = {newValue -> perfilViewModel.actualizarEmail(newValue) },
+                    label = { Text(stringResource(R.string.email), fontSize = 14.sp) },
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = TextStyle(fontSize = 14.sp) )
 
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
                         onClick = {
-                            val asunto = "Log - $fechaHoraFormateada"
-                            val cuerpo = buildString {
-                                appendLine(context.getString(R.string.alias_r, alias))
-                                appendLine(
-                                    context.getString(
-                                        R.string.dificultad_r,
-                                        if (dificultad) context.getString(R.string.dificil) else context.getString(R.string.facil)
-                                    )
-                                )
-                                appendLine(
-                                    context.getString(
-                                        R.string.temporizador_r,
-                                        if (temporizador) context.getString(R.string.si) else context.getString(R.string.no)
-                                    )
-                                )
-                                if (temporizador) {
-                                    appendLine(
-                                        context.getString(
-                                            R.string.tiempo_introducido_r,
-                                            minutosConfigurados,
-                                            segundosConfigurados
-                                        )
-                                    )
-                                    appendLine(
-                                        context.getString(
-                                            R.string.tiempo_restante_r,
-                                            minutosRestantes,
-                                            segundosRestantes
-                                        )
-                                    )
-                                }
-                            }
-
-                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-                                putExtra(Intent.EXTRA_SUBJECT, asunto)
-                                putExtra(Intent.EXTRA_TEXT, cuerpo)
-                            }
-                            try {
-                                context.startActivity(Intent.createChooser(intent, "Enviar email..."))
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
+                            enviarEmail(
+                                context = context,
+                                fechaHoraFormateada = fechaHoraFormateada,
+                                alias = alias,
+                                tipoVictoria = mensajeVictoria,
+                                dificultad = dificultad,
+                                temporizador = temporizador,
+                                minutosConfigurados = minutosConfigurados,
+                                segundosConfigurados = segundosConfigurados,
+                                minutosRestantes = minutosRestantes,
+                                segundosRestantes = segundosRestantes,
+                                email = email
+                            )
                         },
-                        modifier = Modifier.weight(1f).padding(end = 4.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 4.dp)
                     ) {
-                        Text(stringResource(
-                            R.string.enviar_email),
-                            textAlign = TextAlign.Center
+                        Text(
+                            stringResource(R.string.enviar_email),
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp
                         )
                     }
 
@@ -197,19 +179,24 @@ fun ResultadosLandscape(
                             perfilViewModel.reiniciarTiempoRestante()
                             navController.navigate("Jugar")
                         },
-                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp)
                     ) {
                         Text(
                             text = stringResource(R.string.nueva_partida),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp
                         )
                     }
 
                     Button(
                         onClick = { (context as? Activity)?.finish() },
-                        modifier = Modifier.weight(1f).padding(start = 4.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 4.dp)
                     ) {
-                        Text(stringResource(R.string.salir), textAlign = TextAlign.Center)
+                        Text(stringResource(R.string.salir), textAlign = TextAlign.Center, fontSize = 12.sp)
                     }
                 }
             }

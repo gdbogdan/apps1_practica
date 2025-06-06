@@ -27,13 +27,11 @@
     <string name="continuar">Continuar</string>
     <string name="fin_del_juego">Fin de la partida</string>
     <string name="turno_de">Turno de las %s</string>
-    <string name="has_ganado">¡Has ganado!</string>
-    <string name="has_perdido">¡Has perdido!</string>
+
     <string name="mm">mm</string>
     <string name="ss">ss</string>
     <string name="minutos">Minutos</string>
     <string name="segundos">Segundos</string>
-    <string name="empate">¡Empate</string>
     <string name="tiempo_maximo">Tiempo máximo de la partida:</string>
     <string name="Instrucciones">Instrucciones</string>
     <string name="Inicio">Inicio</string>
@@ -52,4 +50,14 @@
     <string name="resultados">Resultados de la partida:</string>
     <string name="toast_alias_vacio">El alías no puede estar vacío.</string>
 
+
+    <string name="has_ganado">¡Has ganado!</string>
+    <string name="has_perdido">¡Has perdido!</string>
+    <string name="empate">¡Empate!</string>
+    <string name="tiempo_agotado">¡Tiempo agotado! Has perdido.</string>
+    <string name="victoria_fila">¡Has ganado! Tres en raya en la fila %1$d</string>
+    <string name="victoria_columna">¡Has ganado! Tres en raya en la columna %1$d</string>
+    <string name="victoria_diagonal1">¡Has ganado! Tres en raya en la diagonal principal</string>
+    <string name="victoria_diagonal2">¡Has ganado! Tres en raya en la diagonal secundaria</string>
+    <string name="sin_victoria">Sin un claro ganador</string>
 </resources>

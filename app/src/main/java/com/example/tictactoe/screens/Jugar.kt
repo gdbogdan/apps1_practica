@@ -26,11 +26,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tictactoe.R
-import com.example.tictactoe.view_models.JugarViewModel
 import com.example.tictactoe.perfil.PerfilViewModel
+import com.example.tictactoe.resultados.ResultadoJuego
+import com.example.tictactoe.view_models.JugarViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -38,12 +38,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun Jugar(
     navController: NavController,
-    perfilViewModel: PerfilViewModel
+    perfilViewModel: PerfilViewModel,
+    jugarViewModel: JugarViewModel
 ) {
-    val jugarViewModel: JugarViewModel = viewModel()
     val tablero by jugarViewModel.tablero
     val mostrarDialogo by jugarViewModel.mostrarDialogoGanador
-    val mensajeGanador by jugarViewModel.mensajeGanador
+    val resultado by jugarViewModel.resultado
+    val mensajeGanador = when (resultado) {
+        ResultadoJuego.GANASTE -> stringResource(R.string.has_ganado)
+        ResultadoJuego.PERDISTE -> stringResource(R.string.has_perdido)
+        ResultadoJuego.EMPATE -> stringResource(R.string.empate)
+        ResultadoJuego.TIEMPO_AGOTADO -> stringResource(R.string.tiempo_agotado)
+        else -> ""
+    }
     val turno by jugarViewModel.turno
     val ganador by jugarViewModel.ganador
     val juegoTerminado by jugarViewModel.juegoTerminado
@@ -82,7 +89,7 @@ fun Jugar(
         val tiempoTotalSegundos = minutos * 60 + segundos
 
         // REPRODUCCIÓN DE SONIDO DIRECTA ANTES DEL ALERTDIALOG
-        LaunchedEffect(mensajeGanador) {
+        LaunchedEffect(resultado) {
             //Log.d("SONIDO_DIRECTO", "Mensaje ganador: $mensajeGanador")
             when (mensajeGanador) {
                 "¡Has ganado!" -> MediaPlayer.create(context, R.raw.victory)
@@ -96,7 +103,7 @@ fun Jugar(
         AlertDialogGanador(
             mensaje = mensajeGanador,
             onContinuar = {
-                jugarViewModel.reiniciarJuego()
+                //jugarViewModel.reiniciarJuego()
                 tiempoTranscurridoSegundos.intValue = 0
                 navController.navigate("Resultados")
             },

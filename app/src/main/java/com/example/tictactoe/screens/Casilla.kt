@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 fun Casilla(simbolo: Simbolo, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(50.dp) // Tamaño fijo de 50dp
+            .size(50.dp) //MODIFICAR PARA QUE SE ADAPTE A LA PANTALLA
             .border(1.dp, Color.Black)
             .clickable { if (simbolo == Simbolo.Vacio) onClick() },
         contentAlignment = Alignment.Center
