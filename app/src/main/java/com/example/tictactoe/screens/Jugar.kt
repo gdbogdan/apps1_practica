@@ -37,6 +37,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 
 @Composable
 fun Jugar(
@@ -57,10 +59,10 @@ fun Jugar(
     val ganador by jugarViewModel.ganador
     val juegoTerminado by jugarViewModel.juegoTerminado
 
-    val dificultad by perfilViewModel.dificultad
-    val temporizadorActivo by perfilViewModel.temporizador
-    val minutos by perfilViewModel.minutos
-    val segundos by perfilViewModel.segundos
+    val dificultad by perfilViewModel.dificultad.collectAsStateWithLifecycle()
+    val temporizadorActivo by perfilViewModel.temporizador.collectAsStateWithLifecycle()
+    val minutos by perfilViewModel.minutos.collectAsStateWithLifecycle()
+    val segundos by perfilViewModel.segundos.collectAsStateWithLifecycle()
 
     val tiempoTranscurridoSegundos = rememberSaveable { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
@@ -68,16 +70,18 @@ fun Jugar(
 
     val context = LocalContext.current
 
-    LaunchedEffect(temporizadorActivo) {
+    LaunchedEffect(temporizadorActivo, minutos, segundos) {
         temporizadorJob?.cancel()
-        if (temporizadorActivo) {
-            val tiempoLimite = minutos * 60 + segundos
+
+        val tiempoLimite = minutos * 60 + segundos
+        if (temporizadorActivo && tiempoLimite > 0) {
+            tiempoTranscurridoSegundos.intValue = 0
             temporizadorJob = scope.launch {
                 while (!juegoTerminado && tiempoTranscurridoSegundos.intValue < tiempoLimite) {
                     delay(1000)
                     tiempoTranscurridoSegundos.intValue++
                 }
-                if (!juegoTerminado && tiempoTranscurridoSegundos.intValue >= tiempoLimite && tiempoLimite > 0) {
+                if (!juegoTerminado && tiempoTranscurridoSegundos.intValue >= tiempoLimite) {
                     jugarViewModel.finalizarJuegoPorTiempoAgotado()
                 }
             }
@@ -115,7 +119,6 @@ fun Jugar(
         AlertDialogGanador(
             mensaje = mensajeGanador,
             onContinuar = {
-                //jugarViewModel.reiniciarJuego()
                 tiempoTranscurridoSegundos.intValue = 0
                 navController.navigate("Resultados")
             },

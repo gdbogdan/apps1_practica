@@ -60,4 +60,8 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.ui)
     implementation(libs.androidx.runtime)
+
+    //Dependencias Preferences Datastore
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 }

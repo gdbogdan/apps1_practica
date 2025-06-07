@@ -114,8 +114,7 @@ class JugarViewModel : ViewModel() {
     }
 
     fun reiniciarJuego() {
-        // Asegúrate de que _tablero también se reinicie si descomentas esto
-        _tablero.value = List(3) { List(3) { Simbolo.Vacio } } // Reinicia el tablero
+        _tablero.value = List(3) { List(3) { Simbolo.Vacio } }
         _turno.value = Simbolo.X
         _ganador.value = null
         _tipoVictoria.value = null

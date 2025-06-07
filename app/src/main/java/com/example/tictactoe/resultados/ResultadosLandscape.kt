@@ -32,6 +32,7 @@ import com.example.tictactoe.view_models.JugarViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle // <-- ¡Añadir esta importación!
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -45,19 +46,34 @@ fun ResultadosLandscape(
     val formatoFechaHora = DateTimeFormatter.ofPattern("'Fecha: ' dd/MM/yyyy ' - Hora: ' HH:mm")
     val fechaHoraFormateada = fechaHoraActual.format(formatoFechaHora)
 
-    val alias by perfilViewModel.alias
-    val dificultad by perfilViewModel.dificultad
-    val temporizador by perfilViewModel.temporizador
-    val minutosConfigurados by perfilViewModel.minutos
-    val segundosConfigurados by perfilViewModel.segundos
-    val minutosRestantes by perfilViewModel.minutosRestantes
-    val segundosRestantes by perfilViewModel.segundosRestantes
+    // --- MODIFICACIÓN AQUÍ: Observar los StateFlows con collectAsStateWithLifecycle() ---
+    val alias by perfilViewModel.alias.collectAsStateWithLifecycle()
+    val dificultad by perfilViewModel.dificultad.collectAsStateWithLifecycle()
+    val temporizador by perfilViewModel.temporizador.collectAsStateWithLifecycle()
+    val minutosConfigurados by perfilViewModel.minutos.collectAsStateWithLifecycle()
+    val segundosConfigurados by perfilViewModel.segundos.collectAsStateWithLifecycle()
+    val minutosRestantes by perfilViewModel.minutosRestantes.collectAsStateWithLifecycle()
+    val segundosRestantes by perfilViewModel.segundosRestantes.collectAsStateWithLifecycle()
+    // Asumiendo que casillasRestantes en JugarViewModel es un State<Int> o MutableState<Int>, no un StateFlow<Int>
     val casillasRestantes by jugarViewModel.casillasRestantes
+    val email by perfilViewModel.email.collectAsStateWithLifecycle()
+    // -------------------------------------------------------------------------------------
 
     val context = LocalContext.current
-    val email by perfilViewModel.email
     val mensajeVictoria = jugarViewModel.obtenerMensajeVictoriaFormateado(context)
 
+    // --- ¡AQUÍ ESTÁ EL BLOQUE DE CÁLCULO DEL TIEMPO EMPLEADO! ---
+    val totalSegundosConfigurados = (minutosConfigurados * 60) + segundosConfigurados
+    // Calculamos el tiempo restante en segundos
+    val totalSegundosRestantes = (minutosRestantes * 60) + segundosRestantes
+
+    // Calculamos el tiempo empleado en segundos
+    // Usamos coerceAtLeast(0) para asegurarnos de que el resultado no sea negativo.
+    val tiempoEmpleadoSegundos = (totalSegundosConfigurados - totalSegundosRestantes).coerceAtLeast(0)
+
+    // Convertimos el tiempo empleado en minutos y segundos
+    val minutosEmpleados = tiempoEmpleadoSegundos / 60
+    val segundosEmpleados = tiempoEmpleadoSegundos % 60
 
     Column(
         modifier = Modifier
@@ -112,12 +128,13 @@ fun ResultadosLandscape(
                     fontSize = 14.sp
                 )
 
-                if (temporizador) { //No especifico que el tiempo son en minutos, pues al configurar el Perfil, ya está marcado Minutos y Segundos
+                if (temporizador) {
                     Text(
                         text = stringResource(
                             R.string.tiempo_juego_resumen,
-                            minutosRestantes,
-                            segundosRestantes,
+                            // --- ¡CAMBIO AQUÍ! Pasamos los Int directamente, el %02d de strings.xml hará el formato ---
+                            minutosEmpleados,
+                            segundosEmpleados,
                             minutosConfigurados,
                             segundosConfigurados
                         ),

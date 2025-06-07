@@ -11,7 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.getValue // Asegurar esta importación
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +28,8 @@ import com.example.tictactoe.view_models.JugarViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle // <-- ¡Asegúrate de que esta importación esté!
+
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -41,18 +43,35 @@ fun ResultadosPortrait(
     val formatoFechaHora = DateTimeFormatter.ofPattern("'Fecha: ' dd/MM/yyyy ' - Hora: ' HH:mm")
     val fechaHoraFormateada = fechaHoraActual.format(formatoFechaHora)
 
-    val alias by perfilViewModel.alias
-    val dificultad by perfilViewModel.dificultad
-    val temporizador by perfilViewModel.temporizador
-    val minutosConfigurados by perfilViewModel.minutos
-    val segundosConfigurados by perfilViewModel.segundos
-    val minutosRestantes by perfilViewModel.minutosRestantes
-    val segundosRestantes by perfilViewModel.segundosRestantes
+    // Observación de los StateFlows del PerfilViewModel
+    val alias by perfilViewModel.alias.collectAsStateWithLifecycle()
+    val dificultad by perfilViewModel.dificultad.collectAsStateWithLifecycle()
+    val temporizador by perfilViewModel.temporizador.collectAsStateWithLifecycle()
+    val minutosConfigurados by perfilViewModel.minutos.collectAsStateWithLifecycle()
+    val segundosConfigurados by perfilViewModel.segundos.collectAsStateWithLifecycle()
+    val minutosRestantes by perfilViewModel.minutosRestantes.collectAsStateWithLifecycle()
+    val segundosRestantes by perfilViewModel.segundosRestantes.collectAsStateWithLifecycle()
+    val email by perfilViewModel.email.collectAsStateWithLifecycle()
+
+    // Observación de la variable de JugarViewModel
     val casillasRestantes by jugarViewModel.casillasRestantes
 
     val context = LocalContext.current
-    val email by perfilViewModel.email
     val mensajeVictoria = jugarViewModel.obtenerMensajeVictoriaFormateado(context)
+
+    // --- ¡AQUÍ ESTÁ EL BLOQUE DE CÁLCULO DEL TIEMPO EMPLEADO! ---
+    val totalSegundosConfigurados = (minutosConfigurados * 60) + segundosConfigurados
+    // Calculamos el tiempo restante en segundos
+    val totalSegundosRestantes = (minutosRestantes * 60) + segundosRestantes
+
+    // Calculamos el tiempo empleado en segundos
+    // Usamos coerceAtLeast(0) para asegurarnos de que el resultado no sea negativo.
+    val tiempoEmpleadoSegundos = (totalSegundosConfigurados - totalSegundosRestantes).coerceAtLeast(0)
+
+    // Convertimos el tiempo empleado en minutos y segundos
+    val minutosEmpleados = tiempoEmpleadoSegundos / 60
+    val segundosEmpleados = tiempoEmpleadoSegundos % 60
+    // -----------------------------------------------------------
 
     Column(
         modifier = Modifier
@@ -86,12 +105,13 @@ fun ResultadosPortrait(
                 if (temporizador) stringResource(R.string.si) else stringResource(R.string.no)
             )
         )
-        if (temporizador) { //No especifico que el tiempo son en minutos, pues al configurar el Perfil, ya está marcado Minutos y Segundos
+        if (temporizador) {
             Text(
                 text = stringResource(
                     R.string.tiempo_juego_resumen,
-                    minutosRestantes,
-                    segundosRestantes,
+                    // --- ¡CAMBIO AQUÍ! Pasamos los Int directamente, el %02d de strings.xml hará el formato ---
+                    minutosEmpleados,
+                    segundosEmpleados,
                     minutosConfigurados,
                     segundosConfigurados
                 ),
@@ -116,24 +136,25 @@ fun ResultadosPortrait(
                     temporizador = temporizador,
                     minutosConfigurados = minutosConfigurados,
                     segundosConfigurados = segundosConfigurados,
+                    // Envía el tiempo restante (persistente) al email, no el empleado
                     minutosRestantes = minutosRestantes,
                     segundosRestantes = segundosRestantes,
                     casillasRestantes = casillasRestantes,
                     email = email
                 )
             }, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.enviar_email)
-                )
+            Text(stringResource(R.string.enviar_email)
+            )
         }
         Button(
             onClick = {
                 perfilViewModel.reiniciarTiempoRestante()
                 navController.navigate("Jugar")
             }, modifier = Modifier.fillMaxWidth()) {
-                Text(text = stringResource(R.string.nueva_partida))
-            }
-            Button(onClick = { (context as? Activity)?.finish() }, modifier = Modifier.fillMaxWidth()) {
-               Text(text = stringResource(R.string.salir))
-            }
+            Text(text = stringResource(R.string.nueva_partida))
         }
+        Button(onClick = { (context as? Activity)?.finish() }, modifier = Modifier.fillMaxWidth()) {
+            Text(text = stringResource(R.string.salir))
+        }
+    }
 }
