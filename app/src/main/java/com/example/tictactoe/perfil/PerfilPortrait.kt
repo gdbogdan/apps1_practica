@@ -17,15 +17,17 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.tictactoe.R
 
 @SuppressLint("DefaultLocale")
@@ -39,12 +41,40 @@ fun PerfilPortrait(
     val toastMsgTiempoCero = stringResource(R.string.toast_tiempo_cero)
     val scrollState = rememberScrollState()
 
+    // Observar el estado de edición del ViewModel
     val isEditing by perfilViewModel.isEditing
-    val alias by perfilViewModel.alias
-    val dificultad by perfilViewModel.dificultad
-    val temporizador by perfilViewModel.temporizador
-    val minutos by perfilViewModel.minutos
-    val segundos by perfilViewModel.segundos
+
+    val aliasDataStore by perfilViewModel.alias.collectAsStateWithLifecycle()
+    val dificultadDataStore by perfilViewModel.dificultad.collectAsStateWithLifecycle()
+    val temporizadorDataStore by perfilViewModel.temporizador.collectAsStateWithLifecycle()
+    val minutosDataStore by perfilViewModel.minutos.collectAsStateWithLifecycle()
+    val segundosDataStore by perfilViewModel.segundos.collectAsStateWithLifecycle()
+
+    // --- AÑADIDO: Estados locales para la edición temporal ---
+    // Estos se usan para reflejar los cambios en la UI *antes* de guardarlos en DataStore.
+    // Si se cancela, se revierten a los valores de DataStore.
+    var currentAlias by remember { mutableStateOf(aliasDataStore) }
+    var currentDificultad by remember { mutableStateOf(dificultadDataStore) }
+    var currentTemporizador by remember { mutableStateOf(temporizadorDataStore) }
+    var currentMinutos by remember { mutableIntStateOf(minutosDataStore) }
+    var currentSegundos by remember { mutableIntStateOf(segundosDataStore) }
+
+    var originalAlias by remember { mutableStateOf(aliasDataStore) }
+    var originalDificultad by remember { mutableStateOf(dificultadDataStore) }
+    var originalTemporizador by remember { mutableStateOf(temporizadorDataStore) }
+    var originalMinutos by remember { mutableIntStateOf(minutosDataStore) }
+    var originalSegundos by remember { mutableIntStateOf(segundosDataStore) }
+
+    androidx.compose.runtime.LaunchedEffect(isEditing, aliasDataStore, dificultadDataStore, temporizadorDataStore, minutosDataStore, segundosDataStore) {
+        if (!isEditing) {
+            currentAlias = aliasDataStore
+            currentDificultad = dificultadDataStore
+            currentTemporizador = temporizadorDataStore
+            currentMinutos = minutosDataStore
+            currentSegundos = segundosDataStore
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -53,8 +83,8 @@ fun PerfilPortrait(
     ) {
         // Alias
         OutlinedTextField(
-            value = alias,
-            onValueChange = { if (isEditing) perfilViewModel.actualizarAlias(it) },
+            value = currentAlias,
+            onValueChange = { if (isEditing) currentAlias = it },
             enabled = isEditing,
             placeholder = { Text(stringResource(R.string.placeholder)) },
             modifier = Modifier.fillMaxWidth(),
@@ -67,15 +97,15 @@ fun PerfilPortrait(
         Text(text = stringResource(R.string.dificultad))
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
             RadioButton(
-                selected = !dificultad,
-                onClick = { if (isEditing) perfilViewModel.actualizarDificultad(false) },
+                selected = !currentDificultad,
+                onClick = { if (isEditing) currentDificultad = false },
                 enabled = isEditing
             )
             Text(text = stringResource(R.string.facil))
             Spacer(modifier = Modifier.width(16.dp))
             RadioButton(
-                selected = dificultad,
-                onClick = { if (isEditing) perfilViewModel.actualizarDificultad(true) },
+                selected = currentDificultad,
+                onClick = { if (isEditing) currentDificultad = true },
                 enabled = isEditing
             )
             Text(text = stringResource(R.string.dificil))
@@ -87,29 +117,31 @@ fun PerfilPortrait(
         Text(text = stringResource(R.string.temporizador))
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
             RadioButton(
-                selected = !temporizador,
-                onClick = { if (isEditing) perfilViewModel.actualizarTemporizador(false) },
+                selected = !currentTemporizador,
+                onClick = { if (isEditing) currentTemporizador = false },
                 enabled = isEditing
             )
             Text(text = stringResource(R.string.no))
             Spacer(modifier = Modifier.width(16.dp))
             RadioButton(
-                selected = temporizador,
-                onClick = { if (isEditing) perfilViewModel.actualizarTemporizador(true) },
+                selected = currentTemporizador,
+                onClick = { if (isEditing) currentTemporizador = true },
                 enabled = isEditing
             )
             Text(text = stringResource(R.string.si))
         }
 
         // Configuración del Tiempo Máximo
-        if (temporizador) {
+        if (currentTemporizador) {
             Text(text = stringResource(R.string.tiempo_maximo))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 OutlinedTextField(
-                    value = String.format("%02d", minutos),
+                    value = String.format("%02d", currentMinutos),
                     onValueChange = { nuevoTexto ->
-                        val valor = nuevoTexto.toIntOrNull() ?: 0
-                        perfilViewModel.actualizarMinutos(valor)
+                        if (isEditing) {
+                            val valor = nuevoTexto.toIntOrNull() ?: 0
+                            currentMinutos = valor
+                        }
                     },
                     label = { Text(stringResource(R.string.minutos)) },
                     placeholder = { Text(stringResource(R.string.zero)) },
@@ -121,10 +153,12 @@ fun PerfilPortrait(
                 Text(text = ":", modifier = Modifier.padding(horizontal = 8.dp))
 
                 OutlinedTextField(
-                    value = String.format("%02d", segundos),
+                    value = String.format("%02d", currentSegundos),
                     onValueChange = { nuevoTexto ->
-                        val valor = nuevoTexto.toIntOrNull() ?: 0
-                        perfilViewModel.actualizarSegundos(valor)
+                        if (isEditing) {
+                            val valor = nuevoTexto.toIntOrNull() ?: 0
+                            currentSegundos = valor
+                        }
                     },
                     label = { Text(stringResource(R.string.segundos)) },
                     placeholder = { Text(stringResource(R.string.zero)) },
@@ -143,18 +177,18 @@ fun PerfilPortrait(
             if (isEditing) {
                 Button(
                     onClick = {
-                        if (alias.trim().isEmpty()) {
+                        if (currentAlias.trim().isEmpty()) { // Usar estado local
                             Toast.makeText(context, context.getString(R.string.toast_alias_vacio), Toast.LENGTH_SHORT).show()
-                        } else if (temporizador && minutos == 0 && segundos == 0) {
+                        } else if (currentTemporizador && currentMinutos == 0 && currentSegundos == 0) { // Usar estado local
                             Toast.makeText(context, toastMsgTiempoCero, Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, toastMsgConfigurada, Toast.LENGTH_SHORT).show()
                             perfilViewModel.marcarPrimerJuegoComoJugado()
-                            perfilViewModel.actualizarAlias(alias)
-                            perfilViewModel.actualizarDificultad(dificultad)
-                            perfilViewModel.actualizarTemporizador(temporizador)
-                            perfilViewModel.actualizarMinutos(minutos)
-                            perfilViewModel.actualizarSegundos(segundos)
+                            perfilViewModel.actualizarAlias(currentAlias)
+                            perfilViewModel.actualizarDificultad(currentDificultad)
+                            perfilViewModel.actualizarTemporizador(currentTemporizador)
+                            perfilViewModel.actualizarMinutos(currentMinutos)
+                            perfilViewModel.actualizarSegundos(currentSegundos)
                             perfilViewModel.setEditing(false)
                         }
                     }
@@ -166,7 +200,13 @@ fun PerfilPortrait(
 
                 Button(
                     onClick = {
-                        perfilViewModel.restablecerValoresOriginales()
+                        currentAlias = originalAlias
+                        currentDificultad = originalDificultad
+                        currentTemporizador = originalTemporizador
+                        currentMinutos = originalMinutos
+                        currentSegundos = originalSegundos
+
+                        perfilViewModel.setEditing(false)
                     }
                 ) {
                     Text(stringResource(R.string.cancelar))
@@ -174,13 +214,19 @@ fun PerfilPortrait(
             } else {
                 Button(
                     onClick = {
-                        perfilViewModel.guardarValoresOriginales(
-                            alias,
-                            dificultad,
-                            temporizador,
-                            minutos,
-                            segundos
-                        )
+                        originalAlias = aliasDataStore
+                        originalDificultad = dificultadDataStore
+                        originalTemporizador = temporizadorDataStore
+                        originalMinutos = minutosDataStore
+                        originalSegundos = segundosDataStore
+
+
+                        currentAlias = aliasDataStore
+                        currentDificultad = dificultadDataStore
+                        currentTemporizador = temporizadorDataStore
+                        currentMinutos = minutosDataStore
+                        currentSegundos = segundosDataStore
+
                         perfilViewModel.setEditing(true)
                     }
                 ) {
@@ -195,12 +241,4 @@ fun PerfilPortrait(
             }
         }
     }
-}
-
-@Preview(showBackground = true, device = "id:pixel_6")
-@Composable
-fun PerfilPortraitPreview() {
-    val navController = rememberNavController()
-    val viewModel: PerfilViewModel = viewModel()
-    PerfilPortrait(navController = navController, perfilViewModel = viewModel)
 }

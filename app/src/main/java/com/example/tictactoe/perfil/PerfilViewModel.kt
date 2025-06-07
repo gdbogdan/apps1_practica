@@ -1,110 +1,92 @@
 package com.example.tictactoe.perfil
 
+import android.app.Application
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class PerfilViewModel : ViewModel() {
-    private val _alias = mutableStateOf("")
-    val alias: State<String> = _alias
+class PerfilViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _dificultad = mutableStateOf(false)
-    val dificultad: State<Boolean> = _dificultad
+    private val userPreferencesRepository = PerfilPreferencesRepository(application.applicationContext)
 
-    private val _temporizador = mutableStateOf(false)
-    val temporizador: State<Boolean> = _temporizador
+    // --- Variables que se persisten con DataStore (todas son StateFlows) ---
+    val alias: StateFlow<String> = userPreferencesRepository.userPreferencesFlow
+        .map { it.alias }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
-    // Minutos del temporizador (establecido por el usuario)
-    private val _minutos = mutableIntStateOf(0)
-    val minutos: State<Int> = _minutos
+    val dificultad: StateFlow<Boolean> = userPreferencesRepository.userPreferencesFlow
+        .map { it.dificultad }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    // Segundos del temporizador (establecido por el usuario)
-    private val _segundos = mutableIntStateOf(0)
-    val segundos: State<Int> = _segundos
+    val temporizador: StateFlow<Boolean> = userPreferencesRepository.userPreferencesFlow
+        .map { it.temporizador }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    // Minutos restantes al finalizar la partida
-    private val _minutosRestantes = mutableIntStateOf(0)
-    val minutosRestantes: State<Int> = _minutosRestantes
+    val minutos: StateFlow<Int> = userPreferencesRepository.userPreferencesFlow
+        .map { it.minutos }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    // Segundos restantes al finalizar la partida
-    private val _segundosRestantes = mutableIntStateOf(0)
-    val segundosRestantes: State<Int> = _segundosRestantes
+    val segundos: StateFlow<Int> = userPreferencesRepository.userPreferencesFlow
+        .map { it.segundos }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val _email = mutableStateOf("")
-    val email: State<String> = _email
+    val primerJuego: StateFlow<Boolean> = userPreferencesRepository.userPreferencesFlow
+        .map { it.primerJuego }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
-    fun actualizarEmail(nuevoEmail: String) {
-        _email.value = nuevoEmail
-    }
+    val email: StateFlow<String> = userPreferencesRepository.userPreferencesFlow
+        .map { it.email }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
-    private val _primerJuego = mutableStateOf(true)
-    val primerJuego: State<Boolean> = _primerJuego
+    val minutosRestantes: StateFlow<Int> = userPreferencesRepository.userPreferencesFlow
+        .map { it.minutosRestantes }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
+    val segundosRestantes: StateFlow<Int> = userPreferencesRepository.userPreferencesFlow
+        .map { it.segundosRestantes }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    // --- Variable que NO se persiste (se mantiene como mutableStateOf para el estado de la UI) ---
     private val _isEditing = mutableStateOf(false)
     val isEditing: State<Boolean> = _isEditing
 
-    private val _originalAlias = mutableStateOf("")
-    private val _originalDificultad = mutableStateOf(false)
-    private val _originalTemporizador = mutableStateOf(false)
-    private val _originalMinutos = mutableIntStateOf(0)
-    private val _originalSegundos = mutableIntStateOf(0)
 
-    fun actualizarMinutos(nuevosMinutos: Int) {
-        _minutos.value = nuevosMinutos
-    }
-
+    // --- Funciones de actualización (todas llaman al repositorio para guardar en DataStore) ---
+    fun actualizarAlias(nuevoAlias: String) { viewModelScope.launch { userPreferencesRepository.updateAlias(nuevoAlias) } }
+    fun actualizarDificultad(nuevaDificultad: Boolean) { viewModelScope.launch { userPreferencesRepository.updateDificultad(nuevaDificultad) } }
+    fun actualizarTemporizador(nuevoTemporizador: Boolean) { viewModelScope.launch { userPreferencesRepository.updateTemporizador(nuevoTemporizador) } }
+    fun actualizarMinutos(nuevosMinutos: Int) { viewModelScope.launch { userPreferencesRepository.updateMinutos(nuevosMinutos) } }
     fun actualizarSegundos(nuevosSegundos: Int) {
         if (nuevosSegundos in 0..59) {
-            _segundos.intValue = nuevosSegundos
+            viewModelScope.launch { userPreferencesRepository.updateSegundos(nuevosSegundos) }
         }
     }
+    fun marcarPrimerJuegoComoJugado() { viewModelScope.launch { userPreferencesRepository.updatePrimerJuego(false) } }
 
-    fun actualizarAlias(nuevoAlias: String) {
-        _alias.value = nuevoAlias
+    fun actualizarEmail(nuevoEmail: String) {
+        viewModelScope.launch { userPreferencesRepository.updateEmail(nuevoEmail) }
     }
 
-    fun actualizarDificultad(nuevaDificultad: Boolean) {
-        _dificultad.value = nuevaDificultad
-    }
-
-    fun actualizarTemporizador(nuevoTemporizador: Boolean) {
-        _temporizador.value = nuevoTemporizador
-    }
-
-    fun marcarPrimerJuegoComoJugado() {
-        _primerJuego.value = false
-    }
-
-    fun setEditing(editing: Boolean) {
-        _isEditing.value = editing
-    }
-
-    fun guardarValoresOriginales(alias: String, dificultad: Boolean, temporizador: Boolean, minutos: Int, segundos: Int) {
-        _originalAlias.value = alias
-        _originalDificultad.value = dificultad
-        _originalTemporizador.value = temporizador
-        _originalMinutos.intValue = minutos
-        _originalSegundos.intValue = segundos
-    }
-
-    fun restablecerValoresOriginales() {
-        _alias.value = _originalAlias.value
-        _dificultad.value = _originalDificultad.value
-        _temporizador.value = _originalTemporizador.value
-        _minutos.intValue = _originalMinutos.intValue
-        _segundos.intValue = _originalSegundos.intValue
-        _isEditing.value = false // Salir del modo edición al cancelar
-    }
+    fun setEditing(editing: Boolean) { _isEditing.value = editing }
 
     fun calcularTiempoRestante(tiempoTotalSegundos: Int, tiempoTranscurridoSegundos: Int) {
         val tiempoRestanteSegundos = tiempoTotalSegundos - tiempoTranscurridoSegundos
-        _minutosRestantes.value = tiempoRestanteSegundos / 60
-        _segundosRestantes.value = tiempoRestanteSegundos % 60
+        viewModelScope.launch {
+            userPreferencesRepository.updateMinutosRestantes(tiempoRestanteSegundos / 60)
+            userPreferencesRepository.updateSegundosRestantes(tiempoRestanteSegundos % 60)
+        }
     }
 
     fun reiniciarTiempoRestante() {
-        _minutosRestantes.value = 0
-        _segundosRestantes.value = 0
+        viewModelScope.launch {
+            userPreferencesRepository.updateMinutosRestantes(0)
+            userPreferencesRepository.updateSegundosRestantes(0)
+        }
     }
 }

@@ -23,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -45,7 +47,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val perfilViewModel: PerfilViewModel = viewModel()
+            val application = application
+            val perfilViewModel: PerfilViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
+                            @Suppress("UNCHECKED_CAST")
+                            return PerfilViewModel(application) as T
+                        }
+                        throw IllegalArgumentException("Unknown ViewModel class")
+                    }
+                }
+            )
 
             Scaffold(
                 topBar = {TopBar(navController)},
@@ -60,7 +73,7 @@ class MainActivity : ComponentActivity() {
                         composable ("Inicio") {
                             Inicio(
                                 navController = navController,
-                                perfilViewModel.primerJuego.value
+                                perfilViewModel = perfilViewModel
                             )
                         }
                         composable ("Instrucciones") {
