@@ -53,12 +53,27 @@ class JugarViewModel : ViewModel() {
     val casillasRestantes: State<Int> = _casillasRestantes
 
     suspend fun onCasillaClick(fila: Int, columna: Int, context: Context, dificultad: Boolean): Boolean {
-        val simboloActual = _tablero.value[fila][columna]
+        val simboloEnCasillaAntes = _tablero.value[fila][columna]
         val casillaKey = Pair(fila, columna)
 
-        if (simboloActual == Simbolo.Vacio) {
+        if (simboloEnCasillaAntes == Simbolo.Vacio) {
             _toquesCasillaOcupada.value.remove(casillaKey)
-            jugarCasilla(fila, columna, dificultad)
+
+            // Guarda el símbolo del jugador que va a mover antes de que cambie
+            val simboloDelJugadorQueMueve = _turno.value
+
+            // Llama a jugarCasilla, que actualizará el tablero y el turno
+            jugarCasilla(fila, columna, dificultad, context)
+
+            // Emitir el Toast después de que la jugada se ha realizado con éxito
+            _feedbackMessage.emit(
+                context.getString(
+                    R.string.simbolo_colocado_en_casilla,
+                    simboloDelJugadorQueMueve.name, // "X" o "O"
+                    fila + 1, // +1 para que sea 1-based (fila 1, columna 1)
+                    columna + 1
+                )
+            )
             return true
         } else {
             val contador = _toquesCasillaOcupada.value.getOrDefault(casillaKey, 0) + 1
@@ -108,10 +123,10 @@ class JugarViewModel : ViewModel() {
         _mostrarDialogoGanador.value = false
         _resultado.value = null
         _toquesCasillaOcupada.value.clear()
-        _casillasRestantes.value = 9 // <<-- AÑADIDO: Reinicia el contador de casillas restantes
+        _casillasRestantes.value = 9
     }
 
-    fun jugarCasilla(fila: Int, columna: Int, dificultad: Boolean) {
+    fun jugarCasilla(fila: Int, columna: Int, dificultad: Boolean, context: Context) {
         if (_ganador.value != null || _juegoTerminado.value || _tablero.value[fila][columna] != Simbolo.Vacio) return
 
         val nuevoTablero = _tablero.value.toMutableList().apply {
@@ -131,14 +146,15 @@ class JugarViewModel : ViewModel() {
         } else {
             _turno.value = if (_turno.value == Simbolo.X) Simbolo.O else Simbolo.X
             if (_turno.value == Simbolo.O && !_juegoTerminado.value) {
-                moverIA(dificultad)
+                // --- MODIFICADO: Pasar 'context' a moverIA ---
+                moverIA(dificultad, context)
             }
         }
     }
 
-    private fun moverIA(dificultad: Boolean) {
+    private fun moverIA(dificultad: Boolean, context: Context) {
         viewModelScope.launch {
-            delay(1000)
+            delay(2000)
 
             val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
             movimiento?.let { (fila, columna) ->
@@ -150,6 +166,15 @@ class JugarViewModel : ViewModel() {
 
                 _tablero.value = nuevoTablero
                 _casillasRestantes.value--
+
+                _feedbackMessage.emit(
+                    context.getString(
+                        R.string.simbolo_colocado_en_casilla,
+                        Simbolo.O.name,
+                        fila + 1,
+                        columna + 1
+                    )
+                )
 
                 val resultadoDetallado = comprobarGanadorDetallado(nuevoTablero)
                 val posibleGanador = resultadoDetallado?.simbolo

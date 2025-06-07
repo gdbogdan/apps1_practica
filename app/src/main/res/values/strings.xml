@@ -64,4 +64,5 @@
     <string name="primer_aviso_casilla_ocupada">¡Celda ocupada! Primer aviso.</string>
     <string name="ultimo_aviso_casilla_ocupada">¡Está ocupada! Último aviso.</string>
     <string name="te_lo_avise">¡Te lo avisé!</string>
+    <string name="simbolo_colocado_en_casilla">Se ha colocado %1$s en la casilla (%2$d, %3$d)</string>
 </resources>
