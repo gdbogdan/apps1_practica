@@ -116,12 +116,25 @@ fun PartidaDetalleCardLandscape(partida: Partida) {
                     Column(
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
+                        val totalSegundos = partida.minutosConfigurados * 60 + partida.segundosConfigurados
+                        val restantes = partida.minutosRestantes * 60 + partida.segundosRestantes
+
+                        val tiempoEmpleado = when (partida.resultado) {
+                            "TIEMPO_AGOTADO" -> totalSegundos // Se agotó todo el tiempo
+                            else -> (totalSegundos - restantes).takeIf { restantes > 0 } ?: totalSegundos
+                        }.coerceAtLeast(0)
+
+                        val minutosEmpleados = tiempoEmpleado / 60
+                        val segundosEmpleados = tiempoEmpleado % 60
+
                         Text(
-                            text = "Configurado: ${partida.minutosConfigurados} min ${partida.segundosConfigurados} seg",
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = "Restante: ${partida.minutosRestantes} min ${partida.segundosRestantes} seg",
+                            text = stringResource(
+                                R.string.tiempo_juego_resumen,
+                                minutosEmpleados,
+                                segundosEmpleados,
+                                partida.minutosConfigurados,
+                                partida.segundosConfigurados
+                            ),
                             fontSize = 14.sp
                         )
                     }
