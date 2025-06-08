@@ -1,4 +1,4 @@
-package com.example.tictactoe.screens
+package com.example.tictactoe.jugar
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable

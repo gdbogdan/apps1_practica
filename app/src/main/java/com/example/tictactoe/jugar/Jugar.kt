@@ -1,4 +1,4 @@
-package com.example.tictactoe.screens
+package com.example.tictactoe.jugar
 
 import android.app.Activity
 import android.media.MediaPlayer

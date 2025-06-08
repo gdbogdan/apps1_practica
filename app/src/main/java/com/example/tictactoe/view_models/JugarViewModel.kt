@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tictactoe.resultados.ResultadoDetallado
 import com.example.tictactoe.resultados.ResultadoJuego
-import com.example.tictactoe.screens.Simbolo
-import com.example.tictactoe.screens.TipoVictoria
+import com.example.tictactoe.jugar.Simbolo
+import com.example.tictactoe.jugar.TipoVictoria
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.tictactoe.R

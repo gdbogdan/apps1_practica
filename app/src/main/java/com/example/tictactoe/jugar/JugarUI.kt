@@ -1,4 +1,4 @@
-package com.example.tictactoe.screens
+package com.example.tictactoe.jugar
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement

@@ -33,8 +33,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.tictactoe.inicio.Inicio
 import com.example.tictactoe.instrucciones.Instrucciones
-import com.example.tictactoe.screens.Jugar
-import com.example.tictactoe.screens.Partidas
+import com.example.tictactoe.jugar.Jugar
+import com.example.tictactoe.partidas.Partidas
 import com.example.tictactoe.perfil.Perfil
 import com.example.tictactoe.resultados.Resultados
 import com.example.tictactoe.perfil.PerfilViewModel

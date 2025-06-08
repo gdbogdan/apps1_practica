@@ -1,7 +1,7 @@
 package com.example.tictactoe.resultados
 
-import com.example.tictactoe.screens.Simbolo
-import com.example.tictactoe.screens.TipoVictoria
+import com.example.tictactoe.jugar.Simbolo
+import com.example.tictactoe.jugar.TipoVictoria
 
 data class ResultadoDetallado(
     val simbolo: Simbolo,

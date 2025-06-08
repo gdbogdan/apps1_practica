@@ -1,4 +1,4 @@
-package com.example.tictactoe.screens
+package com.example.tictactoe.jugar
 
 enum class TipoVictoria {
     FILA1, FILA2, FILA3,

@@ -1,4 +1,4 @@
-package com.example.tictactoe.screens
+package com.example.tictactoe.jugar
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
