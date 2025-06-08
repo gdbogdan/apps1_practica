@@ -19,6 +19,14 @@ fun enviarEmail(
     email: String
 ) {
     val asunto = "Log - $fechaHoraFormateada"
+
+    //Calculo del tiempo correcto:
+    val totalSegundosConfigurados = (minutosConfigurados * 60) + segundosConfigurados
+    val totalSegundosRestantes = (minutosRestantes * 60) + segundosRestantes
+    val tiempoEmpleadoSegundos = (totalSegundosConfigurados - totalSegundosRestantes).coerceAtLeast(0)
+    val minutosEmpleados = tiempoEmpleadoSegundos / 60
+    val segundosEmpleados = tiempoEmpleadoSegundos % 60
+
     val cuerpo = buildString {
         appendLine(tipoVictoria)
         appendLine(context.getString(R.string.alias_r, alias))
@@ -35,12 +43,12 @@ fun enviarEmail(
                 if (temporizador) context.getString(R.string.si) else context.getString(R.string.no)
             )
         )
-        if (temporizador) { //No especifico que el tiempo son en minutos, pues al configurar el Perfil, ya está marcado Minutos y Segundos
+        if (temporizador) {
             appendLine(
                 context.getString(
                     R.string.tiempo_juego_resumen,
-                    minutosRestantes,
-                    segundosRestantes,
+                    minutosEmpleados,
+                    segundosEmpleados,
                     minutosConfigurados,
                     segundosConfigurados
                 )
