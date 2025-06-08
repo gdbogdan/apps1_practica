@@ -1,10 +1,13 @@
 <resources>
     <!-- <string name=""></string> -->
     <string name="app_name">TicTacToe</string>
+    <string name="app_name2">Tic Tac Toe</string>
     <string name="instrucciones">En el juego del Tic Tac Toe o Tres en Raya, el objetivo principal es conseguir tres símbolos iguales en línea (pudiendo ser horizontal, vertical o diagonal). Por norma general, en esta versión empezarán las "X".</string>
     <string name="instrucciones_dificultad">Existen 2 dificultades en el juego, en la dificultad "Fácil" el juego ocupará la primera celda aleatoria disponible. En cambio, en la dificultad "Difícil" aquí el juego hará todo lo posible por empatar o ganarte, aprovechando la IA y simulando ser un jugador real.</string>
     <string name="instrucciones_perfil">El icono del engranaje que aparece arriba a la derecha, es el botón de tu Perfil, la primera vez que juegues, la aplicación te llevará hasta aquí, teniendolo que EDITAR para poder jugar. Desde aquí podrás modificar tu nombre, dificultad y temporizador.</string>
     <string name="instrucciones_navegacion">Podrás navegar fácilmente a cualquier parte y momento de la aplicación, desde el menú de navegación inferior o desde el engranaje en la parte superior derecha.</string>
+
+    <string name="zona_horaria_madrid">Europe/Madrid</string>
 
     <string name="alias">Alias del Jugador</string>
     <string name="alias_r">Alias: %1$s</string>
@@ -52,6 +55,15 @@
     <string name="toast_alias_vacio">El alías no puede estar vacío.</string>
     <string name="casillas_restantes_r">Casillas restantes: %d</string>
 
+    <string name="prefijo_asunto_email">Log - </string>
+    <string name="titulo_selector_email">Enviar email...</string>
+
+    <string name="cargando_detalles_partida">Cargando detalles de la partida...</string>
+    <string name="alias_etiqueta">Alias: %s</string>
+    <string name="dificultad_etiqueta">Dificultad: %s</string>
+    <string name="temporizador_etiqueta">Temporizador: %s</string>
+    <string name="casillas_restantes_etiqueta">Casillas restantes: %d</string>
+
     <string name="has_ganado">¡Has ganado!</string>
     <string name="has_perdido">¡Has perdido!</string>
     <string name="empate">¡Empate!</string>
@@ -65,4 +77,7 @@
     <string name="ultimo_aviso_casilla_ocupada">¡Está ocupada! Último aviso.</string>
     <string name="te_lo_avise">¡Te lo avisé!</string>
     <string name="simbolo_colocado_en_casilla">Se ha colocado %1$s en la casilla (%2$d, %3$d)</string>
+    <string name="volver">Volver</string>
+    <string name="sin_partidas_guardadas">No hay partidas guardadas.</string>
+    <string name="tictactoe_database">tictactoe_database</string>
 </resources>

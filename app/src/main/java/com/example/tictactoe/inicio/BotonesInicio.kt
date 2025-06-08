@@ -2,7 +2,6 @@ package com.example.tictactoe.inicio
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -20,10 +19,11 @@ import com.example.tictactoe.R
 @Composable
 fun BotonesInicio(
     navController: NavController,
-    primerJuego: Boolean,
-    context: Context,
-    msgPrimerJuego: String
+    primerJuego: Boolean
 ) {
+    val context = LocalContext.current
+    val msgPrimerJuego = stringResource(R.string.primerJuego)
+
     Button(onClick = {
         if (primerJuego) {
             Toast.makeText(context, msgPrimerJuego, Toast.LENGTH_LONG).show()

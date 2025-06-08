@@ -18,7 +18,7 @@ fun enviarEmail(
     casillasRestantes: Int,
     email: String
 ) {
-    val asunto = "Log - $fechaHoraFormateada"
+    val asunto = context.getString(R.string.prefijo_asunto_email) + fechaHoraFormateada
 
     //Calculo del tiempo correcto:
     val totalSegundosConfigurados = (minutosConfigurados * 60) + segundosConfigurados
@@ -63,7 +63,7 @@ fun enviarEmail(
         putExtra(Intent.EXTRA_TEXT, cuerpo)
     }
     try {
-        context.startActivity(Intent.createChooser(intent, "Enviar email..."))
+        context.startActivity(Intent.createChooser(intent, context.getString(R.string.titulo_selector_email)))
     } catch (e: Exception) {
         e.printStackTrace()
     }

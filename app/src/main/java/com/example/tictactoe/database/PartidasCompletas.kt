@@ -1,4 +1,4 @@
-package com.example.tictactoe.instrucciones
+package com.example.tictactoe.database
 
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
@@ -6,17 +6,21 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavController
 
 @Composable
-fun Instrucciones(navController: NavController) {
+fun PartidasCompletas(
+    navController: NavController,
+    partidasViewModel: PartidasViewModel,
+    partidaId: Int
+) {
     val configuration = LocalConfiguration.current
     when (configuration.orientation) {
         Configuration.ORIENTATION_PORTRAIT -> {
-            InstruccionesPortrait(navController)
+            PartidasCompletasPortrait(navController, partidasViewModel, partidaId)
         }
         Configuration.ORIENTATION_LANDSCAPE -> {
-            InstruccionesLandscape(navController)
+            PartidasCompletasLandscape(navController, partidasViewModel, partidaId)
         }
         else -> {
-            InstruccionesPortrait(navController)
+            PartidasCompletasPortrait(navController, partidasViewModel, partidaId)
         }
     }
 }

@@ -28,23 +28,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 import com.example.tictactoe.perfil.PerfilViewModel
 import com.example.tictactoe.resultados.ResultadoJuego
-import com.example.tictactoe.view_models.JugarViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 
 @Composable
 fun Jugar(
     navController: NavController,
     perfilViewModel: PerfilViewModel,
-    jugarViewModel: JugarViewModel
+    jugarViewModel: JugarViewModel,
 ) {
     val mostrarDialogo by jugarViewModel.mostrarDialogoGanador
     val resultado by jugarViewModel.resultado
@@ -59,6 +58,7 @@ fun Jugar(
     val ganador by jugarViewModel.ganador
     val juegoTerminado by jugarViewModel.juegoTerminado
 
+    val alias by perfilViewModel.alias.collectAsStateWithLifecycle()
     val dificultad by perfilViewModel.dificultad.collectAsStateWithLifecycle()
     val temporizadorActivo by perfilViewModel.temporizador.collectAsStateWithLifecycle()
     val minutos by perfilViewModel.minutos.collectAsStateWithLifecycle()
@@ -69,6 +69,23 @@ fun Jugar(
     var temporizadorJob by remember { mutableStateOf<Job?>(null) }
 
     val context = LocalContext.current
+
+    LaunchedEffect(dificultad) {
+        jugarViewModel.dificultad = dificultad
+    }
+
+    LaunchedEffect(Unit) { //Por si vamos a Instrucciones o al Perfil, la partida se reiniciará de 0, no se guardará el estado de la partida en curso.
+        jugarViewModel.reiniciarJuego()
+    }
+
+    LaunchedEffect(temporizadorActivo) {
+        jugarViewModel.temporizadorActivado = temporizadorActivo
+    }
+
+    LaunchedEffect(minutos, segundos) {
+        jugarViewModel.tiempoConfiguradoMinutos = minutos
+        jugarViewModel.tiempoConfiguradoSegundos = segundos
+    }
 
     LaunchedEffect(temporizadorActivo, minutos, segundos) {
         temporizadorJob?.cancel()
@@ -106,14 +123,15 @@ fun Jugar(
         val tiempoTotalSegundos = minutos * 60 + segundos
 
         LaunchedEffect(resultado) {
-            //Log.d("SONIDO_DIRECTO", "Mensaje ganador: $mensajeGanador")
-            when (mensajeGanador) {
-                "¡Has ganado!" -> MediaPlayer.create(context, R.raw.victory)
-                "¡Has perdido!" -> MediaPlayer.create(context, R.raw.defeat)
-                "¡Tiempo agotado! Has perdido." -> MediaPlayer.create(context, R.raw.defeat)
-                "¡Empate!" -> MediaPlayer.create(context, R.raw.tie)
-                else -> null
-            }?.start()
+            resultado?.let {
+                when (it) {
+                    ResultadoJuego.GANASTE -> MediaPlayer.create(context, R.raw.victory)
+                    ResultadoJuego.PERDISTE -> MediaPlayer.create(context, R.raw.defeat)
+                    ResultadoJuego.TIEMPO_AGOTADO -> MediaPlayer.create(context, R.raw.defeat)
+                    ResultadoJuego.EMPATE -> MediaPlayer.create(context, R.raw.tie)
+                    else -> null
+                }?.start()
+            }
         }
 
         AlertDialogGanador(
@@ -124,7 +142,9 @@ fun Jugar(
             },
             perfilViewModel = perfilViewModel,
             tiempoTotalSegundos = tiempoTotalSegundos,
-            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.intValue
+            tiempoTranscurridoSegundos = tiempoTranscurridoSegundos.intValue,
+            alias = alias,
+            jugarViewModel = jugarViewModel
         )
     }
 
@@ -140,7 +160,7 @@ fun Jugar(
             temporizadorActivo = temporizadorActivo,
             onCasillaClick = { fila, columna ->
                 scope.launch {
-                    jugarViewModel.onCasillaClick(fila, columna, context, dificultad)
+                    jugarViewModel.onCasillaClick(fila, columna, context)
                 }
             }
         )
@@ -153,7 +173,9 @@ fun AlertDialogGanador(
     onContinuar: () -> Unit,
     perfilViewModel: PerfilViewModel,
     tiempoTotalSegundos: Int,
-    tiempoTranscurridoSegundos: Int
+    tiempoTranscurridoSegundos: Int,
+    alias: String,
+    jugarViewModel: JugarViewModel
 ) {
     AlertDialog(
         onDismissRequest = { /* No hacer nada al tocar fuera */ },
@@ -179,7 +201,18 @@ fun AlertDialogGanador(
             ) {
                 Button(
                     onClick = {
-                        perfilViewModel.calcularTiempoRestante(tiempoTotalSegundos, tiempoTranscurridoSegundos)
+                        perfilViewModel.calcularTiempoRestante(
+                            tiempoTotalSegundos,
+                            tiempoTranscurridoSegundos
+                        )
+
+                        val tiempoRestante = (tiempoTotalSegundos - tiempoTranscurridoSegundos).coerceAtLeast(0)
+                        jugarViewModel.tiempoRestanteMinutos = tiempoRestante / 60
+                        jugarViewModel.tiempoRestanteSegundos = tiempoRestante % 60
+
+                        // Guardar la partida con el tiempo restante actualizado
+                        jugarViewModel.guardarPartida(alias)
+
                         onContinuar()
                     }
                 ) {

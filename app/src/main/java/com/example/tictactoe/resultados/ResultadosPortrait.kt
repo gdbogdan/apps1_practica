@@ -11,7 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue // Asegurar esta importación
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,12 +24,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 import com.example.tictactoe.perfil.PerfilViewModel
-import com.example.tictactoe.view_models.JugarViewModel
+import com.example.tictactoe.jugar.JugarViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import androidx.lifecycle.compose.collectAsStateWithLifecycle // <-- ¡Asegúrate de que esta importación esté!
-
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -38,7 +37,7 @@ fun ResultadosPortrait(
     perfilViewModel: PerfilViewModel,
     jugarViewModel: JugarViewModel
 ) {
-    val madridZoneId = ZoneId.of("Europe/Madrid")
+    val madridZoneId = ZoneId.of(stringResource(R.string.zona_horaria_madrid))
     val fechaHoraActual = remember { LocalDateTime.now(madridZoneId) }
     val formatoFechaHora = DateTimeFormatter.ofPattern("'Fecha: ' dd/MM/yyyy ' - Hora: ' HH:mm")
     val fechaHoraFormateada = fechaHoraActual.format(formatoFechaHora)
@@ -53,25 +52,19 @@ fun ResultadosPortrait(
     val segundosRestantes by perfilViewModel.segundosRestantes.collectAsStateWithLifecycle()
     val email by perfilViewModel.email.collectAsStateWithLifecycle()
 
-    // Observación de la variable de JugarViewModel
+
     val casillasRestantes by jugarViewModel.casillasRestantes
 
     val context = LocalContext.current
     val mensajeVictoria = jugarViewModel.obtenerMensajeVictoriaFormateado(context)
 
-    // --- ¡AQUÍ ESTÁ EL BLOQUE DE CÁLCULO DEL TIEMPO EMPLEADO! ---
     val totalSegundosConfigurados = (minutosConfigurados * 60) + segundosConfigurados
-    // Calculamos el tiempo restante en segundos
     val totalSegundosRestantes = (minutosRestantes * 60) + segundosRestantes
 
-    // Calculamos el tiempo empleado en segundos
-    // Usamos coerceAtLeast(0) para asegurarnos de que el resultado no sea negativo.
     val tiempoEmpleadoSegundos = (totalSegundosConfigurados - totalSegundosRestantes).coerceAtLeast(0)
 
-    // Convertimos el tiempo empleado en minutos y segundos
     val minutosEmpleados = tiempoEmpleadoSegundos / 60
     val segundosEmpleados = tiempoEmpleadoSegundos % 60
-    // -----------------------------------------------------------
 
     Column(
         modifier = Modifier
@@ -149,6 +142,7 @@ fun ResultadosPortrait(
         Button(
             onClick = {
                 perfilViewModel.reiniciarTiempoRestante()
+                jugarViewModel.reiniciarJuego()
                 navController.navigate("Jugar")
             }, modifier = Modifier.fillMaxWidth()) {
             Text(text = stringResource(R.string.nueva_partida))

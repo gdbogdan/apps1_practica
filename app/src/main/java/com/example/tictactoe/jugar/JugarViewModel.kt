@@ -1,21 +1,31 @@
-package com.example.tictactoe.view_models
+package com.example.tictactoe.jugar
 
 import android.content.Context
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.tictactoe.R
+import com.example.tictactoe.database.Partida
+import com.example.tictactoe.database.PartidasRepository
 import com.example.tictactoe.resultados.ResultadoDetallado
 import com.example.tictactoe.resultados.ResultadoJuego
-import com.example.tictactoe.jugar.Simbolo
-import com.example.tictactoe.jugar.TipoVictoria
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import com.example.tictactoe.R
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
+import android.os.CountDownTimer
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
-class JugarViewModel : ViewModel() {
+class JugarViewModel(
+    private val partidasRepository: PartidasRepository
+) : ViewModel() {
 
     private val _tablero = mutableStateOf(List(3) { List(3) { Simbolo.Vacio } })
     val tablero: State<List<List<Simbolo>>> = _tablero
@@ -52,25 +62,110 @@ class JugarViewModel : ViewModel() {
     private val _casillasRestantes = mutableStateOf(9)
     val casillasRestantes: State<Int> = _casillasRestantes
 
-    suspend fun onCasillaClick(fila: Int, columna: Int, context: Context, dificultad: Boolean): Boolean {
+
+    var dificultad by mutableStateOf(false)
+    var temporizadorActivado by mutableStateOf(false)
+    var tiempoConfiguradoMinutos by mutableIntStateOf(0)
+    var tiempoConfiguradoSegundos by mutableIntStateOf(0)
+    var tiempoRestanteMinutos by mutableIntStateOf(0)
+    var tiempoRestanteSegundos by mutableIntStateOf(0)
+
+    private var currentTimer: CountDownTimer? = null
+
+    fun guardarPartida(aliasJugador: String) {
+        val resultadoFinal = _resultado.value?.name ?: "DESCONOCIDO"
+
+        val madridZoneId = ZoneId.of("Europe/Madrid")
+        val fechaHoraActual = LocalDateTime.now(madridZoneId)
+        val formatoFechaHora = DateTimeFormatter.ofPattern("'Fecha: ' dd/MM/yyyy ' - Hora: ' HH:mm")
+        val fechaHoraFormateada = fechaHoraActual.format(formatoFechaHora)
+
+        val partidaAGuardar = Partida(
+            alias = aliasJugador,
+            fechaHoraFormateada = fechaHoraFormateada,
+            resultado = resultadoFinal,
+            dificultad = dificultad,
+            temporizador = temporizadorActivado,
+            minutosConfigurados = tiempoConfiguradoMinutos,
+            segundosConfigurados = tiempoConfiguradoSegundos,
+            minutosRestantes = tiempoRestanteMinutos,
+            segundosRestantes = tiempoRestanteSegundos,
+            casillasRestantes = _casillasRestantes.value
+        )
+
+        viewModelScope.launch {
+            partidasRepository.insertPartida(partidaAGuardar)
+            println("Partida guardada: $partidaAGuardar")
+        }
+    }
+
+    // --- Funciones para iniciar el temporizador (asumiendo que las tienes en otro sitio) ---
+    fun iniciarTemporizador(minutos: Int, segundos: Int) {
+        tiempoConfiguradoMinutos = minutos
+        tiempoConfiguradoSegundos = segundos
+        tiempoRestanteMinutos = minutos
+        tiempoRestanteSegundos = segundos
+
+        val totalMillis = (minutos * 60 + segundos) * 1000L
+        currentTimer?.cancel()
+
+        currentTimer = object : CountDownTimer(totalMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                tiempoRestanteMinutos = (millisUntilFinished / 1000 / 60).toInt()
+                tiempoRestanteSegundos = (millisUntilFinished / 1000 % 60).toInt()
+            }
+
+            override fun onFinish() {
+                // Asegúrate de que el resultado no haya sido ya establecido (victoria/empate)
+                if (_juegoTerminado.value.not()) {
+                    finalizarJuegoPorTiempoAgotado()
+                    // La llamada a guardarPartida se hará desde Resultados.kt
+                }
+            }
+        }.start()
+    }
+
+    fun detenerTemporizador() {
+        currentTimer?.cancel()
+    }
+
+    // --- MODIFICACIONES EN reiniciarJuego() ---
+    fun reiniciarJuego() {
+        _tablero.value = List(3) { List(3) { Simbolo.Vacio } }
+        _turno.value = Simbolo.X
+        _ganador.value = null
+        _tipoVictoria.value = null
+        _juegoTerminado.value = false
+        _mostrarDialogoGanador.value = false
+        _resultado.value = null
+        _toquesCasillaOcupada.value.clear()
+        _casillasRestantes.value = 9
+        // Reiniciar variables del temporizador
+        detenerTemporizador()
+        temporizadorActivado = false
+        tiempoConfiguradoMinutos = 0
+        tiempoConfiguradoSegundos = 0
+        tiempoRestanteMinutos = 0
+        tiempoRestanteSegundos = 0
+    }
+
+    suspend fun onCasillaClick(fila: Int, columna: Int, context: Context): Boolean { // Eliminar dificultad de aquí, se usa desde la propiedad de clase
         val simboloEnCasillaAntes = _tablero.value[fila][columna]
         val casillaKey = Pair(fila, columna)
+
+        if (_juegoTerminado.value) return false
 
         if (simboloEnCasillaAntes == Simbolo.Vacio) {
             _toquesCasillaOcupada.value.remove(casillaKey)
 
-            // Guarda el símbolo del jugador que va a mover antes de que cambie
             val simboloDelJugadorQueMueve = _turno.value
 
-            // Llama a jugarCasilla, que actualizará el tablero y el turno
-            jugarCasilla(fila, columna, dificultad, context)
-
-            // Emitir el Toast después de que la jugada se ha realizado con éxito
+            jugarCasilla(fila, columna, context)
             _feedbackMessage.emit(
                 context.getString(
                     R.string.simbolo_colocado_en_casilla,
-                    simboloDelJugadorQueMueve.name, // "X" o "O"
-                    fila + 1, // +1 para que sea 1-based (fila 1, columna 1)
+                    simboloDelJugadorQueMueve.name,
+                    fila + 1,
                     columna + 1
                 )
             )
@@ -113,19 +208,8 @@ class JugarViewModel : ViewModel() {
         }
     }
 
-    fun reiniciarJuego() {
-        _tablero.value = List(3) { List(3) { Simbolo.Vacio } }
-        _turno.value = Simbolo.X
-        _ganador.value = null
-        _tipoVictoria.value = null
-        _juegoTerminado.value = false
-        _mostrarDialogoGanador.value = false
-        _resultado.value = null
-        _toquesCasillaOcupada.value.clear()
-        _casillasRestantes.value = 9
-    }
 
-    fun jugarCasilla(fila: Int, columna: Int, dificultad: Boolean, context: Context) {
+    fun jugarCasilla(fila: Int, columna: Int, context: Context) { // Eliminada 'dificultad' de los parámetros
         if (_ganador.value != null || _juegoTerminado.value || _tablero.value[fila][columna] != Simbolo.Vacio) return
 
         val nuevoTablero = _tablero.value.toMutableList().apply {
@@ -145,17 +229,16 @@ class JugarViewModel : ViewModel() {
         } else {
             _turno.value = if (_turno.value == Simbolo.X) Simbolo.O else Simbolo.X
             if (_turno.value == Simbolo.O && !_juegoTerminado.value) {
-                // --- MODIFICADO: Pasar 'context' a moverIA ---
-                moverIA(dificultad, context)
+                moverIA(context) // Llamada a moverIA sin 'dificultad' en parámetros
             }
         }
     }
 
-    private fun moverIA(dificultad: Boolean, context: Context) {
+    private fun moverIA(context: Context) { // Eliminada 'dificultad' de los parámetros, ahora usa la propiedad de clase
         viewModelScope.launch {
             delay(2000)
 
-            val movimiento = realizarMovimientoIA(_tablero.value, dificultad)
+            val movimiento = realizarMovimientoIA(_tablero.value, dificultad) // Usa la propiedad de clase 'dificultad'
             movimiento?.let { (fila, columna) ->
                 val nuevoTablero = _tablero.value.toMutableList().apply {
                     this[fila] = this[fila].toMutableList().apply {
@@ -183,6 +266,12 @@ class JugarViewModel : ViewModel() {
                 } else {
                     _turno.value = Simbolo.X
                 }
+            } ?: run {
+                // Si la IA no puede moverse (ej. tablero lleno sin ganador), considera un empate.
+                // Esto podría ser redundante si checkDraw ya lo gestiona, pero es una buena medida.
+                if (_casillasRestantes.value == 0 && _ganador.value == null) {
+                    finalizarJuego(ResultadoDetallado(Simbolo.Vacio, TipoVictoria.EMPATE))
+                }
             }
         }
     }
@@ -198,6 +287,10 @@ class JugarViewModel : ViewModel() {
             Simbolo.Vacio -> ResultadoJuego.EMPATE
         }
         _mostrarDialogoGanador.value = true
+
+        // Llamar a guardarPartida cuando el juego ha finalizado
+        // El alias se pasará desde la UI (Resultados.kt)
+        // No llamamos aquí directamente para que sea la UI la que active el guardado tras mostrar el resultado
     }
 
     fun finalizarJuegoPorTiempoAgotado() {
@@ -206,10 +299,13 @@ class JugarViewModel : ViewModel() {
         _juegoTerminado.value = true
         _resultado.value = ResultadoJuego.TIEMPO_AGOTADO
         _mostrarDialogoGanador.value = true
+
+        // Llamar a guardarPartida cuando el juego ha finalizado
+        // El alias se pasará desde la UI (Resultados.kt)
     }
 
     private fun comprobarGanadorDetallado(tablero: List<List<Simbolo>>): ResultadoDetallado? {
-        // ... (Tu código para comprobar ganador)
+        // ... (Tu código para comprobar ganador, sin cambios aquí) ...
         for (i in 0..2) {
             if (tablero[i][0] != Simbolo.Vacio &&
                 tablero[i][0] == tablero[i][1] &&
@@ -238,13 +334,14 @@ class JugarViewModel : ViewModel() {
             return ResultadoDetallado(tablero[0][2], TipoVictoria.DIAGONAL2)
         }
 
-        // Empate
-        if (tablero.all { fila -> fila.all { it != Simbolo.Vacio } }) {
+        // Empate - Asegúrate de que el empate se detecte solo si no hay ganador
+        if (_casillasRestantes.value == 0 && _ganador.value == null) {
             return ResultadoDetallado(Simbolo.Vacio, TipoVictoria.EMPATE)
         }
 
         return null
     }
+
 
     private fun realizarMovimientoIA(tablero: List<List<Simbolo>>, dificultad: Boolean): Pair<Int, Int>? {
         val casillasVacias = mutableListOf<Pair<Int, Int>>()
@@ -258,7 +355,8 @@ class JugarViewModel : ViewModel() {
 
         if (casillasVacias.isEmpty()) return null
 
-        return if (dificultad) {
+        return if (dificultad) { // Usa la propiedad de clase 'dificultad'
+            // Lógica de IA difícil
             for ((fila, columna) in casillasVacias) {
                 val tableroTemporal = tablero.toMutableList().apply {
                     this[fila] = this[fila].toMutableList().apply {
@@ -267,7 +365,7 @@ class JugarViewModel : ViewModel() {
                 }.toList()
                 val resultado = comprobarGanadorDetallado(tableroTemporal)
                 if (resultado?.simbolo == Simbolo.O) {
-                    return Pair(fila, columna)
+                    return Pair(fila, columna) // Mueve para ganar
                 }
             }
 
@@ -279,12 +377,14 @@ class JugarViewModel : ViewModel() {
                 }.toList()
                 val resultado = comprobarGanadorDetallado(tableroTemporal)
                 if (resultado?.simbolo == Simbolo.X) {
-                    return Pair(fila, columna)
+                    return Pair(fila, columna) // Bloquea al jugador
                 }
             }
 
+            // Ocupar el centro
             if (tablero[1][1] == Simbolo.Vacio) return Pair(1, 1)
 
+            // Ocupar esquinas
             val esquinasLibres = casillasVacias.filter { (fila, columna) ->
                 (fila == 0 && columna == 0) || (fila == 0 && columna == 2) ||
                         (fila == 2 && columna == 0) || (fila == 2 && columna == 2)
@@ -293,9 +393,27 @@ class JugarViewModel : ViewModel() {
                 return esquinasLibres.random()
             }
 
-            casillasVacias.random()
+            casillasVacias.random() // Si no hay mejores opciones, elige al azar
         } else {
+            // Lógica de IA fácil (aleatorio)
             casillasVacias.random()
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        currentTimer?.cancel() // Cancela el temporizador al limpiar el ViewModel
+    }
+}
+
+// --- Factory para JugarViewModel ---
+// Es necesario para inyectar PartidasRepository
+class JugarViewModelFactory(private val partidasRepository: PartidasRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(JugarViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return JugarViewModel(partidasRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

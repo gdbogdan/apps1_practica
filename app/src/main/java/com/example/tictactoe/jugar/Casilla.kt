@@ -20,7 +20,7 @@ fun Casilla(
 ) {
     Box(
         modifier = Modifier
-            .size(50.dp) //MODIFICAR PARA QUE SE ADAPTE A LA PANTALLA
+            .size(50.dp)
             .border(1.dp, Color.Black)
             .clickable { onCasillaClick(fila, columna) },
         contentAlignment = Alignment.Center

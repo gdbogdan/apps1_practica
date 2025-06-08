@@ -1,30 +1,27 @@
-package com.example.tictactoe.resultados
+package com.example.tictactoe.database
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavController
-import com.example.tictactoe.perfil.PerfilViewModel
-import com.example.tictactoe.jugar.JugarViewModel
 
 @SuppressLint("ContextCastToActivity")
 @Composable
-fun Resultados(
+fun Partidas(
     navController: NavController,
-    perfilViewModel: PerfilViewModel,
-    jugarViewModel: JugarViewModel
+    partidasViewModel: PartidasViewModel
 ) {
     val configuration = LocalConfiguration.current
     when (configuration.orientation) {
         Configuration.ORIENTATION_PORTRAIT -> {
-            ResultadosPortrait(navController, perfilViewModel, jugarViewModel)
+            PartidasResumenPortrait(navController, partidasViewModel)
         }
         Configuration.ORIENTATION_LANDSCAPE -> {
-            ResultadosLandscape(navController, perfilViewModel, jugarViewModel)
+            PartidasResumenLandscape(navController, partidasViewModel)
         }
         else -> {
-            ResultadosPortrait(navController, perfilViewModel, jugarViewModel)
+            PartidasResumenPortrait(navController, partidasViewModel)
         }
     }
 }

@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tictactoe.R
 import com.example.tictactoe.perfil.PerfilViewModel
-import com.example.tictactoe.view_models.JugarViewModel
+import com.example.tictactoe.jugar.JugarViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import androidx.lifecycle.compose.collectAsStateWithLifecycle // <-- ¡Añadir esta importación!
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @SuppressLint("ContextCastToActivity")
 @Composable
@@ -41,12 +41,12 @@ fun ResultadosLandscape(
     perfilViewModel: PerfilViewModel,
     jugarViewModel: JugarViewModel
 ) {
-    val madridZoneId = ZoneId.of("Europe/Madrid")
+    val madridZoneId = ZoneId.of(stringResource(R.string.zona_horaria_madrid))
     val fechaHoraActual = remember { LocalDateTime.now(madridZoneId) }
     val formatoFechaHora = DateTimeFormatter.ofPattern("'Fecha: ' dd/MM/yyyy ' - Hora: ' HH:mm")
     val fechaHoraFormateada = fechaHoraActual.format(formatoFechaHora)
 
-    // --- MODIFICACIÓN AQUÍ: Observar los StateFlows con collectAsStateWithLifecycle() ---
+
     val alias by perfilViewModel.alias.collectAsStateWithLifecycle()
     val dificultad by perfilViewModel.dificultad.collectAsStateWithLifecycle()
     val temporizador by perfilViewModel.temporizador.collectAsStateWithLifecycle()
@@ -54,24 +54,18 @@ fun ResultadosLandscape(
     val segundosConfigurados by perfilViewModel.segundos.collectAsStateWithLifecycle()
     val minutosRestantes by perfilViewModel.minutosRestantes.collectAsStateWithLifecycle()
     val segundosRestantes by perfilViewModel.segundosRestantes.collectAsStateWithLifecycle()
-    // Asumiendo que casillasRestantes en JugarViewModel es un State<Int> o MutableState<Int>, no un StateFlow<Int>
+
     val casillasRestantes by jugarViewModel.casillasRestantes
     val email by perfilViewModel.email.collectAsStateWithLifecycle()
-    // -------------------------------------------------------------------------------------
 
     val context = LocalContext.current
     val mensajeVictoria = jugarViewModel.obtenerMensajeVictoriaFormateado(context)
 
-    // --- ¡AQUÍ ESTÁ EL BLOQUE DE CÁLCULO DEL TIEMPO EMPLEADO! ---
     val totalSegundosConfigurados = (minutosConfigurados * 60) + segundosConfigurados
-    // Calculamos el tiempo restante en segundos
     val totalSegundosRestantes = (minutosRestantes * 60) + segundosRestantes
 
-    // Calculamos el tiempo empleado en segundos
-    // Usamos coerceAtLeast(0) para asegurarnos de que el resultado no sea negativo.
     val tiempoEmpleadoSegundos = (totalSegundosConfigurados - totalSegundosRestantes).coerceAtLeast(0)
 
-    // Convertimos el tiempo empleado en minutos y segundos
     val minutosEmpleados = tiempoEmpleadoSegundos / 60
     val segundosEmpleados = tiempoEmpleadoSegundos % 60
 
@@ -195,6 +189,7 @@ fun ResultadosLandscape(
                     Button(
                         onClick = {
                             perfilViewModel.reiniciarTiempoRestante()
+                            jugarViewModel.reiniciarJuego()
                             navController.navigate("Jugar")
                         },
                         modifier = Modifier
