@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun Tablero(
     tablero: State<List<List<Simbolo>>>,
-    onCasillaClick: (fila: Int, columna: Int) -> Unit
+    onCasillaClick: (fila: Int, columna: Int) -> Unit,
+    cellSize: Dp
 ) {
     val currentTablero by tablero
 
@@ -21,7 +23,8 @@ fun Tablero(
                         simbolo = simbolo,
                         fila = filaIndex,
                         columna = colIndex,
-                        onCasillaClick = onCasillaClick
+                        onCasillaClick = onCasillaClick,
+                        cellSize = cellSize
                     )
                 }
             }

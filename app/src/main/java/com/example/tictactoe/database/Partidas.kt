@@ -6,22 +6,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavController
 
-@SuppressLint("ContextCastToActivity")
-@Composable
+@SuppressLint("ContextCastToActivity") @Composable
 fun Partidas(
     navController: NavController,
-    partidasViewModel: PartidasViewModel
+    partidasViewModel: PartidasViewModel,
+    isTablet: Boolean
 ) {
-    val configuration = LocalConfiguration.current
-    when (configuration.orientation) {
-        Configuration.ORIENTATION_PORTRAIT -> {
-            PartidasResumenPortrait(navController, partidasViewModel)
-        }
-        Configuration.ORIENTATION_LANDSCAPE -> {
-            PartidasResumenLandscape(navController, partidasViewModel)
-        }
-        else -> {
-            PartidasResumenPortrait(navController, partidasViewModel)
+    if (isTablet) {
+        PartidasBiPanel(
+            partidasViewModel = partidasViewModel
+
+        )
+    } else {
+        val configuration = LocalConfiguration.current
+        when (configuration.orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> {
+                PartidasResumenPortrait(
+                    partidasViewModel = partidasViewModel,
+                    navController = navController
+                )
+            }
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                PartidasResumenLandscape(
+                    partidasViewModel = partidasViewModel,
+                    navController = navController
+                )
+            }
+            else -> {
+                PartidasResumenPortrait(
+                    partidasViewModel = partidasViewModel,
+                    navController = navController
+                )
+            }
         }
     }
 }

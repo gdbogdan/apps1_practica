@@ -55,6 +55,7 @@ fun PartidasResumenLandscape(
         ) {
             items(allPartidas) { partida ->
                 PartidaResumenCardLandscape(partida = partida) {
+                    // Mantener la navegación para móviles
                     navController.navigate("PartidasCompletas/${partida.id}")
                 }
             }

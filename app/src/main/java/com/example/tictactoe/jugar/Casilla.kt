@@ -9,18 +9,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun Casilla(
     simbolo: Simbolo,
     fila: Int,
     columna: Int,
-    onCasillaClick: (fila: Int, columna: Int) -> Unit
+    onCasillaClick: (fila: Int, columna: Int) -> Unit,
+    cellSize: Dp
 ) {
     Box(
         modifier = Modifier
-            .size(50.dp)
+            .size(cellSize)
             .border(1.dp, Color.Black)
             .clickable { onCasillaClick(fila, columna) },
         contentAlignment = Alignment.Center
@@ -30,7 +34,8 @@ fun Casilla(
                 Simbolo.X -> "X"
                 Simbolo.O -> "O"
                 Simbolo.Vacio -> ""
-            }
+            },
+            style = TextStyle(fontSize = (cellSize.value * 0.6f).sp)
         )
     }
 }

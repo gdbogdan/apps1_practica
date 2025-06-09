@@ -33,7 +33,6 @@ fun PartidasResumenPortrait(
     navController: NavController,
     partidasViewModel: PartidasViewModel
 ) {
-
     val allPartidas by partidasViewModel.allPartidas.collectAsState(initial = emptyList())
 
     if (allPartidas.isEmpty()) {
@@ -56,6 +55,7 @@ fun PartidasResumenPortrait(
         ) {
             items(allPartidas) { partida ->
                 PartidaResumenCard(partida = partida) {
+                    // Mantener la navegación para móviles
                     navController.navigate("PartidasCompletas/${partida.id}")
                 }
             }

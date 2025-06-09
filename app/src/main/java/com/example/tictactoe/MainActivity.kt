@@ -25,10 +25,14 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -56,6 +60,7 @@ import com.example.tictactoe.resultados.Resultados
 
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedGetBackStackEntry")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,6 +72,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
+
+            // Calcular WindowSizeClass aquí para usarla en el NavHost
+            val configuration = LocalConfiguration.current
+            val isTablet = configuration.smallestScreenWidthDp >= 600
 
             val perfilViewModel: PerfilViewModel = viewModel(
                 factory = object : ViewModelProvider.Factory {
@@ -119,15 +128,21 @@ class MainActivity : ComponentActivity() {
                             perfilViewModel = perfilViewModel
                         )
                     }
-                    composable ( "Partidas"){
-                        Partidas(navController, partidasViewModel)
+                    composable("Partidas") {
+                        Partidas(
+                            navController = navController,
+                            partidasViewModel = partidasViewModel,
+                            isTablet = isTablet
+                        )
                     }
-                    composable(
-                        route = "PartidasCompletas/{partidaId}",
-                        arguments = listOf(navArgument("partidaId") { type = NavType.IntType })
-                    ) { backStackEntry ->
-                        val partidaId = backStackEntry.arguments?.getInt("partidaId") ?: -1
-                        PartidasCompletas(navController, partidasViewModel, partidaId)
+                    if (!isTablet) {
+                        composable(
+                            route = "PartidasCompletas/{partidaId}",
+                            arguments = listOf(navArgument("partidaId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val partidaId = backStackEntry.arguments?.getInt("partidaId") ?: -1
+                            PartidasCompletas(navController, partidasViewModel, partidaId)
+                        }
                     }
                     composable("Resultados") {
                         Resultados(
@@ -156,7 +171,6 @@ class MainActivity : ComponentActivity() {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Aquí el Text es simplemente el título, no el contenedor completo
                     Text(text = stringResource(R.string.app_name2))
                 }
             },

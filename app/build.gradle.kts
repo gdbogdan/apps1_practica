@@ -70,4 +70,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    //Dependencias para WindowSizeClass
+    implementation(libs.material3.window.sizes)
 }

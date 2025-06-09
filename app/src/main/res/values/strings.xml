@@ -80,4 +80,5 @@
     <string name="volver">Volver</string>
     <string name="sin_partidas_guardadas">No hay partidas guardadas.</string>
     <string name="tictactoe_database">tictactoe_database</string>
+    <string name="selecciona_una_partida">Seleccione una partida.</string>
 </resources>

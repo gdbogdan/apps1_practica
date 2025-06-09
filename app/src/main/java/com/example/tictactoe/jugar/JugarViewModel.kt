@@ -209,7 +209,7 @@ class JugarViewModel(
     }
 
 
-    fun jugarCasilla(fila: Int, columna: Int, context: Context) { // Eliminada 'dificultad' de los parámetros
+    fun jugarCasilla(fila: Int, columna: Int, context: Context) {
         if (_ganador.value != null || _juegoTerminado.value || _tablero.value[fila][columna] != Simbolo.Vacio) return
 
         val nuevoTablero = _tablero.value.toMutableList().apply {
@@ -234,7 +234,7 @@ class JugarViewModel(
         }
     }
 
-    private fun moverIA(context: Context) { // Eliminada 'dificultad' de los parámetros, ahora usa la propiedad de clase
+    private fun moverIA(context: Context) {
         viewModelScope.launch {
             delay(2000)
 
